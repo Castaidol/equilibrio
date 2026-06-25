@@ -1,0 +1,6 @@
+# Configurazione Netlify per Equilibrio
+# I file statici stanno in public/ (pubblicati), la funzione in netlify/functions/ (fuori dal pubblicato).
+
+[build]
+  publish = "public"
+  functions = "netlify/functions"
