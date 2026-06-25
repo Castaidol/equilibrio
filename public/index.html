@@ -354,6 +354,98 @@
   .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
   .btn-ghost{background:transparent;color:var(--cream-dim);border:1px solid var(--line-strong);}
 
+  /* ---- Report serale ---- */
+  .report-btn{
+    position:absolute;top:18px;right:20px;z-index:4;
+    width:42px;height:42px;border-radius:14px;
+    background:var(--surface);border:1px solid var(--line);
+    color:var(--cool);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease);
+  }
+  .report-btn:hover{border-color:var(--line-strong);transform:translateY(-1px);}
+  .report-btn svg{transform:rotate(18deg);}
+
+  .report-panel{
+    position:absolute;inset:0;z-index:7;
+    background:
+      radial-gradient(120% 50% at 85% -5%, var(--cool-soft), transparent 55%),
+      linear-gradient(170deg, #161b24, #10131a);
+    display:flex;flex-direction:column;
+    transform:translateY(100%);
+    transition:transform .42s var(--ease);
+    overflow:hidden;
+  }
+  .report-panel.open{transform:translateY(0);}
+  .report-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:clamp(22px,6vw,30px) clamp(18px,5vw,26px) 16px;
+    flex:none;
+  }
+  .report-title{display:flex;align-items:center;gap:13px;color:var(--cool);}
+  .report-title svg{transform:rotate(18deg);flex:none;}
+  .report-h1{font-family:"Quicksand",sans-serif;font-weight:600;font-size:1.3rem;color:var(--cream);letter-spacing:.2px;}
+  .report-date{font-size:.8rem;color:var(--muted);text-transform:lowercase;margin-top:1px;}
+  .report-close{
+    width:38px;height:38px;border-radius:12px;flex:none;
+    background:none;border:1px solid var(--line);color:var(--cream-dim);
+    font-size:1.5rem;line-height:1;cursor:pointer;
+    transition:background .2s var(--ease),color .2s var(--ease);
+  }
+  .report-close:hover{background:rgba(236,232,223,.05);color:var(--cream);}
+  .report-body{
+    flex:1;overflow-y:auto;
+    padding:8px clamp(18px,5vw,26px) calc(34px + env(safe-area-inset-bottom));
+  }
+  .report-body::-webkit-scrollbar{width:0;}
+
+  .rep-balance{
+    display:flex;gap:12px;margin-bottom:22px;
+  }
+  .rep-stat{
+    flex:1;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 16px 15px;text-align:center;
+  }
+  .rep-stat .num{font-family:"Quicksand",sans-serif;font-weight:600;font-size:1.9rem;line-height:1;}
+  .rep-stat .num small{font-size:1.05rem;color:var(--cream-dim);font-weight:500;}
+  .rep-stat .lab{font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:7px;}
+  .rep-stat.ess .num{color:var(--warm);}
+  .rep-badge{
+    display:inline-flex;align-items:center;gap:7px;margin:0 auto 24px;
+    padding:8px 15px;border-radius:99px;
+    background:var(--warm-soft);border:1px solid var(--warm);color:var(--warm);
+    font-size:.84rem;font-weight:600;
+    width:fit-content;
+  }
+  .rep-badge.center{display:flex;justify-content:center;}
+
+  .rep-section-label{font-size:.72rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin:0 2px 12px;}
+  .rep-commentary{
+    background:var(--surface);border:1px solid var(--line);
+    border-left:3px solid var(--cool);
+    border-radius:var(--r-md);
+    padding:17px 18px;margin-bottom:24px;
+    font-size:1rem;line-height:1.6;color:var(--cream);
+    min-height:3em;
+    transition:opacity .35s ease;
+  }
+  .rep-commentary.loading{color:var(--muted);font-style:italic;}
+
+  .rep-cat{display:flex;align-items:center;gap:11px;margin-bottom:13px;}
+  .rep-cat-dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .rep-cat-name{font-size:.94rem;flex:none;min-width:84px;}
+  .rep-cat-bar{flex:1;height:6px;border-radius:99px;background:rgba(236,232,223,.07);overflow:hidden;}
+  .rep-cat-fill{height:100%;border-radius:99px;}
+  .rep-cat-count{font-size:.82rem;color:var(--cream-dim);font-variant-numeric:tabular-nums;flex:none;min-width:34px;text-align:right;}
+
+  .rep-tomorrow{
+    margin-top:26px;padding:16px 18px;
+    background:rgba(111,178,182,.06);border:1px solid var(--line);
+    border-radius:var(--r-md);
+  }
+  .rep-tomorrow .t-label{font-size:.72rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--cool);margin-bottom:6px;}
+  .rep-tomorrow .t-text{font-size:.96rem;color:var(--cream-dim);line-height:1.45;}
+
   /* focus & motion */
   button:focus-visible,.text-input:focus-visible{outline:2px solid var(--cool);outline-offset:3px;}
   @media (prefers-reduced-motion:reduce){
@@ -388,6 +480,12 @@
       <div id="groups"></div>
     </div>
 
+    <button class="report-btn" id="reportBtn" aria-label="Report della giornata">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z" fill="currentColor"/>
+      </svg>
+    </button>
+
     <button class="fab" id="fab" aria-label="Aggiungi attività">+</button>
 
     <div class="overlay" id="overlay"></div>
@@ -407,7 +505,25 @@
         <button class="btn btn-primary" id="addBtn" disabled>Aggiungi</button>
       </div>
     </div>
+
+    <!-- Report serale -->
+    <div class="report-panel" id="reportPanel" role="dialog" aria-modal="true" aria-label="Report della giornata">
+      <div class="report-head">
+        <div class="report-title">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z" fill="currentColor"/>
+          </svg>
+          <div>
+            <div class="report-h1">La tua giornata</div>
+            <div class="report-date" id="reportDate"></div>
+          </div>
+        </div>
+        <button class="report-close" id="reportClose" aria-label="Chiudi">×</button>
+      </div>
+      <div class="report-body" id="reportBody"></div>
+    </div>
   </div>
+
 
 <script>
 "use strict";
@@ -449,7 +565,7 @@ const PHRASES = [
 ];
 
 /* ---------- Utilities ---------- */
-const STORES = [["categories","id"],["templates","id"],["tasks","id"],["meta","key"]];
+const STORES = [["categories","id"],["templates","id"],["tasks","id"],["meta","key"],["days","data"]];
 const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function uid(){
@@ -482,7 +598,7 @@ function openDB(){
     let done = false;
     const to = setTimeout(() => { if(!done){ done = true; reject(new Error("indexedDB timeout")); } }, 1500);
     let req;
-    try { req = indexedDB.open("equilibrio_v1", 1); }
+    try { req = indexedDB.open("equilibrio_v1", 2); }
     catch(e){ clearTimeout(to); return reject(e); }
     req.onupgradeneeded = () => {
       const db = req.result;
@@ -808,6 +924,144 @@ async function addTask(){
   renderBalance();
 }
 
+/* ---------- Report serale ---------- */
+const REPORT_HOUR = 21;   // dalle 21:00 il report si apre da solo all'apertura
+
+async function getMeta(){ return (await store.get("meta","state")) || { key:"state" }; }
+async function setMeta(patch){
+  const m = await getMeta();
+  Object.assign(m, patch, { key:"state" });
+  await store.put("meta", m);
+  return m;
+}
+
+function reportStats(){
+  const essTot  = todayTasks.filter(t => t.essenziale).length;
+  const essDone = todayTasks.filter(t => t.essenziale && t.completata).length;
+  const totali  = todayTasks.length;
+  const fatti   = todayTasks.filter(t => t.completata).length;
+  const cats = [];
+  for(const c of categories){
+    const items = todayTasks.filter(t => t.categoriaId === c.id);
+    if(items.length === 0) continue;
+    cats.push({ nome:c.nome, colore:c.colore, fatti: items.filter(t => t.completata).length, totali: items.length });
+  }
+  return { essTot, essDone, totali, fatti, essAllDone: essTot > 0 && essDone === essTot, cats };
+}
+
+function computeTomorrow(templates){
+  const dow = (new Date().getDay() + 1) % 7;
+  let tot = 0, ess = 0;
+  for(const t of templates){
+    if(t.attivo === false) continue;
+    if(!occursOn(t.ricorrenza, dow)) continue;
+    tot++; if(t.essenziale) ess++;
+  }
+  return { tot, ess };
+}
+
+function renderReportBody(s, outlook){
+  document.getElementById("reportDate").textContent =
+    new Date().toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long" });
+
+  let html = `<div class="rep-balance">
+    <div class="rep-stat ess"><div class="num">${s.essDone}<small>/${s.essTot || 0}</small></div><div class="lab">essenziali</div></div>
+    <div class="rep-stat"><div class="num">${s.fatti}<small>/${s.totali}</small></div><div class="lab">in giornata</div></div>
+  </div>`;
+
+  if(s.essAllDone){
+    html += `<div style="text-align:center"><span class="rep-badge">in equilibrio</span></div>`;
+  }
+
+  html += `<div class="rep-section-label">il commento della sera</div>`;
+  html += `<div class="rep-commentary loading" id="repCommentary">sto raccogliendo i pensieri sulla giornata…</div>`;
+
+  if(s.cats.length){
+    html += `<div class="rep-section-label">per area</div>`;
+    for(const c of s.cats){
+      const pct = c.totali ? Math.round(c.fatti / c.totali * 100) : 0;
+      html += `<div class="rep-cat">
+        <span class="rep-cat-dot" style="background:${c.colore}"></span>
+        <span class="rep-cat-name">${escapeHtml(c.nome)}</span>
+        <span class="rep-cat-bar"><span class="rep-cat-fill" style="width:${pct}%;background:${c.colore}"></span></span>
+        <span class="rep-cat-count">${c.fatti}/${c.totali}</span>
+      </div>`;
+    }
+  }
+
+  const tText = outlook.tot === 0
+    ? "Domani non ci sono attività ricorrenti in programma."
+    : `Domani ti aspettano ${outlook.tot} attività${outlook.ess ? `, di cui ${outlook.ess} ${outlook.ess === 1 ? "essenziale" : "essenziali"}` : ""}.`;
+  html += `<div class="rep-tomorrow"><div class="t-label">domani</div><div class="t-text">${tText}</div></div>`;
+
+  document.getElementById("reportBody").innerHTML = html;
+}
+
+function setReportCommentary(text){
+  const el = document.getElementById("repCommentary");
+  if(!el) return;
+  el.classList.remove("loading");
+  el.style.opacity = "0";
+  setTimeout(() => { el.textContent = text; el.style.opacity = "1"; }, 180);
+}
+
+function fallbackReportText(s){
+  if(s.totali === 0)  return "Oggi non c'erano attività in programma. Domani riparti con calma.";
+  if(s.essAllDone)    return "Hai completato tutti gli essenziali: una giornata in equilibrio. Concediti un momento di pausa.";
+  if(s.fatti === 0)   return "Oggi non è decollata, e va bene così. Domani è una pagina nuova.";
+  return `Hai portato a termine ${s.fatti} attività su ${s.totali}. Un passo dopo l'altro, stai costruendo qualcosa.`;
+}
+
+async function fetchReportText(s, outlook){
+  const payload = {
+    essenzialiTotali: s.essTot, essenzialiFatti: s.essDone,
+    totali: s.totali, fatti: s.fatti,
+    categorie: s.cats.map(c => ({ nome:c.nome, fatti:c.fatti, totali:c.totali })),
+    domani: outlook,
+  };
+  try {
+    const res = await fetch("/.netlify/functions/report", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if(res.ok){
+      const data = await res.json();
+      const txt = (data && data.text || "").trim();
+      if(txt) return txt;
+    }
+  } catch { /* offline o funzione non disponibile */ }
+  return fallbackReportText(s);
+}
+
+async function saveDaySnapshot(s, outlook, text){
+  await store.put("days", {
+    data: todayKey(),
+    totali: s.totali, fatti: s.fatti,
+    essenzialiTotali: s.essTot, essenzialiFatti: s.essDone,
+    essenzialiCompletate: s.essAllDone,
+    categorie: s.cats.map(c => ({ nome:c.nome, fatti:c.fatti, totali:c.totali })),
+    reportTesto: text,
+    domani: outlook,
+    generatoIl: Date.now(),
+  });
+}
+
+async function openReport(auto){
+  const s = reportStats();
+  const templates = await store.getAll("templates");
+  const outlook = computeTomorrow(templates);
+  renderReportBody(s, outlook);
+  document.getElementById("reportPanel").classList.add("open");
+  if(auto) await setMeta({ reportShownDate: todayKey() });
+  const text = await fetchReportText(s, outlook);
+  setReportCommentary(text);
+  await saveDaySnapshot(s, outlook, text);
+}
+function closeReport(){
+  document.getElementById("reportPanel").classList.remove("open");
+}
+
 /* ---------- Avvio ---------- */
 async function start(){
   await initStore();
@@ -839,6 +1093,15 @@ async function start(){
     sheetEss = !sheetEss;
     essBtn.setAttribute("aria-pressed", String(sheetEss));
   });
+
+  document.getElementById("reportBtn").addEventListener("click", () => openReport(false));
+  document.getElementById("reportClose").addEventListener("click", closeReport);
+
+  // La sera, alla prima apertura dopo l'orario stabilito, il report si apre da solo
+  const meta = await getMeta();
+  if(new Date().getHours() >= REPORT_HOUR && meta.reportShownDate !== todayKey()){
+    openReport(true);
+  }
 }
 
 start();
