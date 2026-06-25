@@ -246,6 +246,51 @@
     line-height:1.5;
   }
 
+  /* ---- Attività misurabili ---- */
+  .task.measurable{flex-direction:column;align-items:stretch;padding:14px 16px 13px;gap:0;}
+  .task-top{display:flex;align-items:center;gap:14px;}
+  .task.measurable .check{cursor:default;}
+  .task.measurable .task-text{flex:1;}
+  .meas-track{height:5px;border-radius:99px;background:rgba(236,232,223,.07);overflow:hidden;margin:12px 0 10px;}
+  .meas-fill{display:block;height:100%;border-radius:99px;transition:width .3s var(--ease);}
+  .meas-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .meas-progress{
+    background:none;border:none;color:var(--cream-dim);font:inherit;font-size:.9rem;cursor:pointer;
+    padding:4px 2px;border-radius:8px;text-align:left;
+  }
+  .meas-progress .meas-now{color:var(--cream);font-weight:700;font-variant-numeric:tabular-nums;}
+  .meas-progress .meas-sep{opacity:.5;margin:0 1px;}
+  .meas-progress:hover{color:var(--cream);}
+  .meas-input{
+    width:84px;background:var(--surface-2);border:1px solid var(--warm);
+    border-radius:10px;color:var(--cream);font:inherit;font-size:.95rem;font-weight:700;
+    padding:5px 9px;outline:none;
+  }
+  .stepper{display:flex;gap:8px;flex:none;}
+  .step-btn{
+    width:38px;height:38px;border-radius:12px;flex:none;
+    background:var(--surface-2);border:1px solid var(--line-strong);
+    color:var(--cream);font-size:1.3rem;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:border-color .2s var(--ease),background .2s var(--ease),transform .12s var(--ease);
+  }
+  .step-btn:hover{border-color:var(--cream-dim);}
+  .step-btn:active{transform:scale(.93);}
+  .task.measurable.done .meas-fill{opacity:.6;}
+  .task.measurable.done .task-text{color:var(--cream-dim);text-decoration:none;}
+
+  /* ---- Selettore tipo + campi misurabili nel foglio ---- */
+  .type-toggle{display:flex;gap:8px;margin-bottom:20px;}
+  .type-opt{
+    flex:1;background:var(--surface);border:1px solid var(--line-strong);
+    border-radius:var(--r-sm);color:var(--cream-dim);font:inherit;font-size:.92rem;
+    padding:11px;cursor:pointer;transition:all .2s var(--ease);
+  }
+  .type-opt[aria-pressed="true"]{color:var(--cream);border-color:var(--warm);background:var(--warm-soft);}
+  .meas-fields-grid{display:flex;gap:10px;margin-bottom:20px;}
+  .meas-fields-grid > div{flex:1;}
+  .text-input.compact{margin-bottom:0;padding:11px 12px;}
+
   /* ---- FAB ---- */
   .fab{
     position:absolute;
@@ -494,6 +539,30 @@
       <h2>Nuova attività</h2>
       <div class="field-label">Cosa vuoi fare</div>
       <input class="text-input" id="taskInput" type="text" placeholder="Scrivi un'attività…" autocomplete="off">
+
+      <div class="field-label">Tipo</div>
+      <div class="type-toggle" id="typeToggle">
+        <button class="type-opt" data-type="binaria" aria-pressed="true">Da spuntare</button>
+        <button class="type-opt" data-type="misurabile" aria-pressed="false">Con obiettivo</button>
+      </div>
+
+      <div id="measFields" class="meas-fields" hidden>
+        <div class="meas-fields-grid">
+          <div>
+            <div class="field-label">Obiettivo</div>
+            <input class="text-input compact" id="objInput" type="number" inputmode="numeric" min="1" value="10">
+          </div>
+          <div>
+            <div class="field-label">Unità</div>
+            <input class="text-input compact" id="unitInput" type="text" placeholder="pagine, minuti…" autocomplete="off">
+          </div>
+          <div>
+            <div class="field-label">Passo</div>
+            <input class="text-input compact" id="stepInput" type="number" inputmode="numeric" min="1" value="1">
+          </div>
+        </div>
+      </div>
+
       <div class="field-label">Categoria</div>
       <div class="chips" id="chips"></div>
       <button class="ess-row" id="essToggle" aria-pressed="false">
@@ -552,6 +621,8 @@ const SEED_TEMPLATES = [
   { id:"t-revisione", testo:"Revisione settimanale",         categoriaId:"cat-lavoro",    tipo:"binaria", ricorrenza:{type:"weekly", days:[1]}, carryover:false, essenziale:false, attivo:true, ordine:5 },
   { id:"t-riordino",  testo:"Riordinare per 10 minuti",      categoriaId:"cat-personale", tipo:"binaria", ricorrenza:{type:"daily"},            carryover:false, essenziale:false, attivo:true, ordine:6 },
   { id:"t-caro",      testo:"Scrivere a una persona cara",   categoriaId:"cat-personale", tipo:"binaria", ricorrenza:{type:"daily"},            carryover:false, essenziale:false, attivo:true, ordine:7 },
+  { id:"t-acqua",     testo:"Bere acqua",                    categoriaId:"cat-salute",    tipo:"misurabile", ricorrenza:{type:"daily"}, carryover:false, essenziale:true,  attivo:true, ordine:8, obiettivoBase:8,  unita:"bicchieri", passo:1 },
+  { id:"t-lettura",   testo:"Leggere",                       categoriaId:"cat-mente",     tipo:"misurabile", ricorrenza:{type:"daily"}, carryover:false, essenziale:false, attivo:true, ordine:9, obiettivoBase:20, unita:"pagine",    passo:5 },
 ];
 
 const PHRASES = [
@@ -643,13 +714,13 @@ async function initStore(){
 }
 
 /* ---------- Bootstrap & materializzazione ---------- */
+// Aggiunge solo le voci del seed non ancora presenti (per id): primo avvio le aggiunge
+// tutte, gli avvii successivi solo le nuove. I dati esistenti non vengono toccati.
 async function ensureSeed(){
-  const cats = await store.getAll("categories");
-  if(cats.length === 0){
-    for(const c of SEED_CATEGORIES) await store.put("categories", c);
-    for(const t of SEED_TEMPLATES)  await store.put("templates", t);
-    await store.put("meta", { key:"state", seeded:true, lastDate:null });
-  }
+  const haveCat = new Set((await store.getAll("categories")).map(c => c.id));
+  for(const c of SEED_CATEGORIES){ if(!haveCat.has(c.id)) await store.put("categories", c); }
+  const haveTpl = new Set((await store.getAll("templates")).map(t => t.id));
+  for(const t of SEED_TEMPLATES){ if(!haveTpl.has(t.id)) await store.put("templates", t); }
 }
 async function materializeToday(){
   const today = todayKey();
@@ -662,12 +733,21 @@ async function materializeToday(){
   for(const tpl of templates){
     if(!occursOn(tpl.ricorrenza, dow)) continue;
     if(haveTpl.has(tpl.id)) continue;
-    await store.put("tasks", {
+    const base = {
       id: uid(), data: today, templateId: tpl.id,
       testo: tpl.testo, categoriaId: tpl.categoriaId, tipo: tpl.tipo || "binaria",
-      essenziale: !!tpl.essenziale, completata: false,
+      essenziale: !!tpl.essenziale,
       ordine: order++, creataIl: Date.now(),
-    });
+    };
+    if(base.tipo === "misurabile"){
+      base.obiettivoBase = tpl.obiettivoBase || 1;
+      base.progressoOggi = 0;
+      base.unita = tpl.unita || "";
+      base.passo = tpl.passo || 1;
+    } else {
+      base.completata = false;
+    }
+    await store.put("tasks", base);
   }
   const meta = (await store.get("meta","state")) || { key:"state" };
   meta.lastDate = today;
@@ -687,6 +767,13 @@ async function loadState(){
 }
 function catById(id){ return categories.find(c => c.id === id) || { nome:"Senza categoria", colore:"#878f9d" }; }
 
+// Un'attività è "completata" se binaria spuntata, oppure se misurabile al raggiungimento dell'obiettivo base.
+function isDone(t){
+  return t.tipo === "misurabile"
+    ? (t.progressoOggi || 0) >= (t.obiettivoBase || 0)
+    : !!t.completata;
+}
+
 /* ---------- Rendering ---------- */
 function renderHeader(){
   const now = new Date();
@@ -704,16 +791,16 @@ function phraseContext(){
   const h = now.getHours();
   const momento = h < 12 ? "mattina" : (h < 18 ? "pomeriggio" : "sera");
   const essTot = todayTasks.filter(t => t.essenziale).length;
-  const essDone = todayTasks.filter(t => t.essenziale && t.completata).length;
+  const essDone = todayTasks.filter(t => t.essenziale && isDone(t)).length;
   const pendentiCat = [...new Set(
-    todayTasks.filter(t => !t.completata).map(t => catById(t.categoriaId).nome)
+    todayTasks.filter(t => !isDone(t)).map(t => catById(t.categoriaId).nome)
   )];
   return {
     momento,
     essenzialiTotali: essTot,
     essenzialiFatti: essDone,
     totali: todayTasks.length,
-    fatti: todayTasks.filter(t => t.completata).length,
+    fatti: todayTasks.filter(t => isDone(t)).length,
     categoriePendenti: pendentiCat,
   };
 }
@@ -780,9 +867,9 @@ function tweenRing(target){
 
 function renderBalance(){
   const essTotal = todayTasks.filter(t => t.essenziale).length;
-  const essDone  = todayTasks.filter(t => t.essenziale && t.completata).length;
+  const essDone  = todayTasks.filter(t => t.essenziale && isDone(t)).length;
   const total    = todayTasks.length;
-  const done     = todayTasks.filter(t => t.completata).length;
+  const done     = todayTasks.filter(t => isDone(t)).length;
 
   const numEl = document.getElementById("ringNum");
   const labelEl = document.getElementById("ringLabel");
@@ -825,7 +912,7 @@ function renderGroups(){
   for(const cat of categories){
     const items = todayTasks.filter(t => t.categoriaId === cat.id);
     if(items.length === 0) continue;
-    const done = items.filter(t => t.completata).length;
+    const done = items.filter(t => isDone(t)).length;
     html += `<div class="group">
       <div class="group-head">
         <span class="group-dot" style="background:${cat.colore}"></span>
@@ -843,9 +930,17 @@ function renderGroups(){
     btn.addEventListener("click", () => toggleTask(btn.dataset.id)));
   root.querySelectorAll(".task-del").forEach(btn =>
     btn.addEventListener("click", (e) => { e.stopPropagation(); removeTask(btn.dataset.id); }));
+  root.querySelectorAll(".step-btn").forEach(btn =>
+    btn.addEventListener("click", () => stepMeasurable(btn.dataset.id, btn.dataset.act)));
+  root.querySelectorAll(".meas-progress").forEach(btn =>
+    btn.addEventListener("click", () => editMeasurable(btn.dataset.id)));
 }
 
 function taskHtml(t, cat){
+  return t.tipo === "misurabile" ? taskHtmlMeasurable(t, cat) : taskHtmlBinary(t, cat);
+}
+
+function taskHtmlBinary(t, cat){
   const oneTime = !t.templateId;
   const checkStyle = t.completata ? `style="background:${cat.colore};border-color:${cat.colore}"` : "";
   return `<div class="task ${t.completata ? "done" : ""}">
@@ -857,6 +952,35 @@ function taskHtml(t, cat){
       ${t.essenziale ? `<span class="ess-dot" title="essenziale"></span>` : ""}
     </button>
     ${oneTime ? `<button class="task-del" data-id="${t.id}" aria-label="Rimuovi">×</button>` : ""}
+  </div>`;
+}
+
+function taskHtmlMeasurable(t, cat){
+  const oneTime = !t.templateId;
+  const prog = t.progressoOggi || 0;
+  const obj  = t.obiettivoBase || 0;
+  const done = isDone(t);
+  const pct  = obj ? Math.min(100, Math.round(prog / obj * 100)) : 0;
+  const checkStyle = done ? `style="background:${cat.colore};border-color:${cat.colore}"` : "";
+  return `<div class="task measurable ${done ? "done" : ""}">
+    <div class="task-top">
+      <span class="check" ${checkStyle}>
+        <svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg>
+      </span>
+      <span class="task-text">${escapeHtml(t.testo)}</span>
+      ${t.essenziale ? `<span class="ess-dot" title="essenziale"></span>` : ""}
+      ${oneTime ? `<button class="task-del" data-id="${t.id}" aria-label="Rimuovi">×</button>` : ""}
+    </div>
+    <div class="meas-track" style="--c:${cat.colore}"><span class="meas-fill" style="width:${pct}%;background:${cat.colore}"></span></div>
+    <div class="meas-row">
+      <button class="meas-progress" data-id="${t.id}" title="Tocca per inserire la cifra esatta">
+        <span class="meas-now">${prog}</span> <span class="meas-sep">/</span> ${obj} ${escapeHtml(t.unita || "")}
+      </button>
+      <div class="stepper">
+        <button class="step-btn" data-id="${t.id}" data-act="dec" aria-label="Diminuisci">−</button>
+        <button class="step-btn" data-id="${t.id}" data-act="inc" aria-label="Aumenta">+</button>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -876,8 +1000,49 @@ async function removeTask(id){
   renderBalance();
 }
 
+// Incremento/decremento a passi (il superamento dell'obiettivo è consentito)
+async function stepMeasurable(id, act){
+  const t = todayTasks.find(x => x.id === id);
+  if(!t || t.tipo !== "misurabile") return;
+  const passo = t.passo || 1;
+  const cur = t.progressoOggi || 0;
+  t.progressoOggi = act === "inc" ? cur + passo : Math.max(0, cur - passo);
+  await store.put("tasks", t);
+  renderGroups();
+  renderBalance();
+}
+async function setMeasurable(id, value){
+  const t = todayTasks.find(x => x.id === id);
+  if(!t || t.tipo !== "misurabile") return;
+  const v = Math.max(0, Math.round(Number(value) || 0));
+  t.progressoOggi = v;
+  await store.put("tasks", t);
+  renderGroups();
+  renderBalance();
+}
+// Inserimento della cifra esatta: la riga del progresso diventa un campo numerico
+function editMeasurable(id){
+  const btn = document.querySelector(`.meas-progress[data-id="${id}"]`);
+  if(!btn) return;
+  const t = todayTasks.find(x => x.id === id);
+  if(!t) return;
+  const cur = t.progressoOggi || 0;
+  btn.outerHTML = `<input class="meas-input" type="number" inputmode="numeric" min="0" value="${cur}" data-id="${id}">`;
+  const input = document.querySelector(`.meas-input[data-id="${id}"]`);
+  if(!input) return;
+  input.focus();
+  input.select();
+  let committed = false;
+  const commit = () => { if(committed) return; committed = true; setMeasurable(id, input.value); };
+  input.addEventListener("blur", commit);
+  input.addEventListener("keydown", (e) => {
+    if(e.key === "Enter"){ e.preventDefault(); commit(); }
+    else if(e.key === "Escape"){ committed = true; renderGroups(); }
+  });
+}
+
 /* ---------- Bottom sheet ---------- */
-let sheetCat = null, sheetEss = false;
+let sheetCat = null, sheetEss = false, sheetType = "binaria";
 
 function buildChips(){
   const wrap = document.getElementById("chips");
@@ -891,11 +1056,21 @@ function buildChips(){
       wrap.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === ch ? "true" : "false"));
     }));
 }
+function setSheetType(type){
+  sheetType = type;
+  document.querySelectorAll("#typeToggle .type-opt").forEach(b =>
+    b.setAttribute("aria-pressed", b.dataset.type === type ? "true" : "false"));
+  document.getElementById("measFields").hidden = (type !== "misurabile");
+}
 function openSheet(){
   sheetCat = categories[0] ? categories[0].id : null;
   sheetEss = false;
+  setSheetType("binaria");
   const input = document.getElementById("taskInput");
   input.value = "";
+  document.getElementById("objInput").value = "10";
+  document.getElementById("unitInput").value = "";
+  document.getElementById("stepInput").value = "1";
   document.getElementById("addBtn").disabled = true;
   document.getElementById("essToggle").setAttribute("aria-pressed","false");
   const chips = document.querySelectorAll(".chip");
@@ -914,9 +1089,17 @@ async function addTask(){
   const order = todayTasks.length ? Math.max(...todayTasks.map(t => t.ordine)) + 1 : 0;
   const t = {
     id: uid(), data: todayKey(), templateId: null,
-    testo, categoriaId: sheetCat, tipo: "binaria",
-    essenziale: sheetEss, completata: false, ordine: order, creataIl: Date.now(),
+    testo, categoriaId: sheetCat, tipo: sheetType,
+    essenziale: sheetEss, ordine: order, creataIl: Date.now(),
   };
+  if(sheetType === "misurabile"){
+    t.obiettivoBase = Math.max(1, Math.round(Number(document.getElementById("objInput").value) || 1));
+    t.unita = document.getElementById("unitInput").value.trim();
+    t.passo = Math.max(1, Math.round(Number(document.getElementById("stepInput").value) || 1));
+    t.progressoOggi = 0;
+  } else {
+    t.completata = false;
+  }
   await store.put("tasks", t);
   todayTasks.push(t);
   closeSheet();
@@ -937,14 +1120,14 @@ async function setMeta(patch){
 
 function reportStats(){
   const essTot  = todayTasks.filter(t => t.essenziale).length;
-  const essDone = todayTasks.filter(t => t.essenziale && t.completata).length;
+  const essDone = todayTasks.filter(t => t.essenziale && isDone(t)).length;
   const totali  = todayTasks.length;
-  const fatti   = todayTasks.filter(t => t.completata).length;
+  const fatti   = todayTasks.filter(t => isDone(t)).length;
   const cats = [];
   for(const c of categories){
     const items = todayTasks.filter(t => t.categoriaId === c.id);
     if(items.length === 0) continue;
-    cats.push({ nome:c.nome, colore:c.colore, fatti: items.filter(t => t.completata).length, totali: items.length });
+    cats.push({ nome:c.nome, colore:c.colore, fatti: items.filter(t => isDone(t)).length, totali: items.length });
   }
   return { essTot, essDone, totali, fatti, essAllDone: essTot > 0 && essDone === essTot, cats };
 }
@@ -1093,6 +1276,9 @@ async function start(){
     sheetEss = !sheetEss;
     essBtn.setAttribute("aria-pressed", String(sheetEss));
   });
+
+  document.querySelectorAll("#typeToggle .type-opt").forEach(b =>
+    b.addEventListener("click", () => setSheetType(b.dataset.type)));
 
   document.getElementById("reportBtn").addEventListener("click", () => openReport(false));
   document.getElementById("reportClose").addEventListener("click", closeReport);
