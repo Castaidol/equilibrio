@@ -33,6 +33,7 @@
     --r-lg:26px;
     --r-md:18px;
     --r-sm:14px;
+    --tabbar-h:62px;
     --ease:cubic-bezier(.22,.61,.36,1);
     font-size:16px;
   }
@@ -77,10 +78,112 @@
     flex:1;
     overflow-y:auto;
     overflow-x:hidden;
-    padding:clamp(20px,6vw,30px) clamp(18px,5vw,26px) 120px;
+    padding:clamp(20px,6vw,30px) clamp(18px,5vw,26px) calc(var(--tabbar-h) + 40px + env(safe-area-inset-bottom));
     -webkit-overflow-scrolling:touch;
   }
   .content::-webkit-scrollbar{width:0;}
+  .view[hidden]{display:none;}
+
+  /* ---- Tab bar ---- */
+  .tabbar{
+    position:absolute;left:0;right:0;bottom:0;z-index:4;
+    display:flex;
+    height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    padding-bottom:env(safe-area-inset-bottom);
+    background:rgba(18,21,29,.92);
+    backdrop-filter:blur(12px);
+    border-top:1px solid var(--line);
+  }
+  .tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    padding-top:7px;
+    background:none;border:none;cursor:pointer;color:var(--muted);
+    font:inherit;font-size:.64rem;letter-spacing:.2px;
+    transition:color .2s var(--ease);
+  }
+  .tab svg{width:22px;height:22px;}
+  .tab.active{color:var(--warm);}
+
+  /* ---- Schermate segnaposto ---- */
+  .view.placeholder{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;min-height:62vh;color:var(--muted);
+  }
+  .view.placeholder[hidden]{display:none;}
+  .ph-icon{color:var(--cool);opacity:.85;margin-bottom:16px;}
+  .ph-title{font-family:"Quicksand",sans-serif;font-weight:600;font-size:1.3rem;color:var(--cream);margin-bottom:8px;}
+  .ph-text{font-size:.92rem;line-height:1.5;max-width:240px;}
+
+  /* ---- Impostazioni ---- */
+  .view-title{font-family:"Quicksand",sans-serif;font-weight:600;font-size:1.4rem;margin:4px 0 22px;}
+  .set-group{margin-bottom:24px;}
+  .set-label{display:block;font-size:.74rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  #setName, #setTime{margin-bottom:0;}
+  .tone-opts{display:flex;gap:8px;}
+  .tone-opt{
+    flex:1;background:var(--surface);border:1px solid var(--line-strong);
+    border-radius:var(--r-sm);color:var(--cream-dim);font:inherit;font-size:.88rem;
+    padding:12px 8px;cursor:pointer;transition:all .2s var(--ease);
+  }
+  .tone-opt[aria-pressed="true"]{color:var(--cream);border-color:var(--warm);background:var(--warm-soft);}
+  .set-hint{font-size:.8rem;color:var(--muted);line-height:1.45;margin-top:10px;}
+  .set-save{width:100%;margin-top:6px;}
+  .set-saved{text-align:center;color:var(--cool);font-size:.86rem;margin-top:14px;}
+  .set-saved[hidden]{display:none;}
+
+  /* ---- Streak (Oggi) ---- */
+  .streak-oggi{
+    display:inline-flex;align-items:center;gap:6px;margin:2px 0 6px;
+    padding:5px 12px;border-radius:99px;cursor:pointer;
+    background:var(--warm-soft);border:1px solid rgba(230,177,126,.28);
+    color:var(--warm);font-size:.8rem;font-weight:600;
+  }
+  .streak-oggi[hidden]{display:none;}
+  .streak-oggi svg{display:block;}
+
+  /* ---- Streak (Storico) ---- */
+  .streak-card{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:20px 22px;margin-bottom:24px;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  }
+  .streak-main{display:flex;align-items:center;gap:12px;}
+  .streak-flame{color:var(--warm);display:flex;}
+  .streak-num{font-family:"Quicksand",sans-serif;font-weight:700;font-size:2.6rem;line-height:1;color:var(--cream);}
+  .streak-unit{font-size:.8rem;color:var(--cream-dim);line-height:1.25;}
+  .streak-rec{text-align:right;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);line-height:1.5;}
+  .streak-rec b{display:block;font-family:"Quicksand",sans-serif;font-size:1.4rem;color:var(--cool);font-weight:700;letter-spacing:0;text-transform:none;}
+
+  /* ---- Calendario ---- */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .cal-title{font-family:"Quicksand",sans-serif;font-weight:600;font-size:1.05rem;text-transform:capitalize;}
+  .cal-nav{
+    width:34px;height:34px;border-radius:10px;flex:none;
+    background:var(--surface);border:1px solid var(--line-strong);
+    color:var(--cream);font-size:1.2rem;line-height:1;cursor:pointer;
+  }
+  .cal-nav:disabled{opacity:.3;cursor:default;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cal-grid.dow{margin-bottom:8px;}
+  .cal-grid.dow > div{text-align:center;font-size:.66rem;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);}
+  .cal-day{
+    aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+    border-radius:11px;font-size:.85rem;color:var(--cream-dim);
+  }
+  .cal-day.pad{visibility:hidden;}
+  .cal-day.success{background:var(--warm);color:#1b1206;font-weight:700;}
+  .cal-day.fail{border:1px solid var(--line-strong);}
+  .cal-day.pending{border:1px dashed rgba(230,177,126,.55);color:var(--warm);}
+  .cal-day.missing{color:var(--muted);opacity:.4;}
+  .cal-day.future{color:var(--muted);opacity:.22;}
+  .cal-day.today{box-shadow:0 0 0 2px var(--cool);}
+  .cal-day[data-day]{cursor:pointer;}
+  .cal-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;margin-top:20px;font-size:.74rem;color:var(--muted);}
+  .cal-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .cal-legend .lg{width:12px;height:12px;border-radius:4px;display:inline-block;}
+  .cal-legend .lg.success{background:var(--warm);}
+  .cal-legend .lg.fail{border:1px solid var(--line-strong);}
+  .cal-legend .lg.missing{background:var(--muted);opacity:.4;}
 
   /* ---- Header ---- */
   .greet{
@@ -115,6 +218,23 @@
     background:linear-gradient(90deg,var(--warm),var(--cool));
     opacity:.8;
   }
+
+  /* ---- Promemoria residuo settimanale ---- */
+  #weekNotice:empty{display:none;}
+  .week-notice{
+    display:flex;align-items:flex-start;gap:12px;
+    margin-top:18px;padding:13px 14px;
+    background:var(--warm-soft);border:1px solid rgba(230,177,126,.3);
+    border-radius:var(--r-sm);
+  }
+  .wn-text{flex:1;font-size:.88rem;line-height:1.45;color:var(--cream);}
+  .wn-title{display:block;font-size:.66rem;letter-spacing:1px;text-transform:uppercase;color:var(--warm);margin-bottom:3px;font-weight:700;}
+  .wn-close{
+    flex:none;width:26px;height:26px;border-radius:8px;
+    background:none;border:none;color:var(--warm);font-size:1.2rem;line-height:1;cursor:pointer;
+    transition:background .2s var(--ease);
+  }
+  .wn-close:hover{background:rgba(230,177,126,.12);}
 
   /* ---- Balance ring (signature) ---- */
   .balance{
@@ -251,9 +371,15 @@
   .task-top{display:flex;align-items:center;gap:14px;}
   .task.measurable .check{cursor:default;}
   .task.measurable .task-text{flex:1;}
-  .meas-track{height:5px;border-radius:99px;background:rgba(236,232,223,.07);overflow:hidden;margin:12px 0 10px;}
+  .meas-track{position:relative;height:5px;border-radius:99px;background:rgba(236,232,223,.07);overflow:hidden;margin:12px 0 10px;}
   .meas-fill{display:block;height:100%;border-radius:99px;transition:width .3s var(--ease);}
+  .meas-tick{position:absolute;top:0;bottom:0;width:2px;background:var(--cream);opacity:.6;transform:translateX(-1px);}
   .meas-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .meas-left{display:flex;align-items:center;gap:9px;min-width:0;}
+  .rec-tag{
+    font-size:.62rem;letter-spacing:.6px;text-transform:uppercase;font-weight:700;flex:none;
+    color:var(--warm);background:var(--warm-soft);padding:3px 8px;border-radius:99px;
+  }
   .meas-progress{
     background:none;border:none;color:var(--cream-dim);font:inherit;font-size:.9rem;cursor:pointer;
     padding:4px 2px;border-radius:8px;text-align:left;
@@ -278,6 +404,9 @@
   .step-btn:active{transform:scale(.93);}
   .task.measurable.done .meas-fill{opacity:.6;}
   .task.measurable.done .task-text{color:var(--cream-dim);text-decoration:none;}
+  /* base raggiunta ma recupero ancora da fare: spunta piena, riga non attenuata */
+  .task.measurable.reached .check{border-color:transparent;}
+  .task.measurable.reached .check svg{stroke-dashoffset:0;}
 
   /* ---- Selettore tipo + campi misurabili nel foglio ---- */
   .type-toggle{display:flex;gap:8px;margin-bottom:20px;}
@@ -294,7 +423,7 @@
   /* ---- FAB ---- */
   .fab{
     position:absolute;
-    right:20px;bottom:22px;
+    right:20px;bottom:calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom));
     width:58px;height:58px;border-radius:20px;
     border:none;cursor:pointer;
     background:linear-gradient(150deg,var(--warm),#d99a63);
@@ -306,6 +435,25 @@
   }
   .fab:hover{transform:translateY(-2px);box-shadow:0 18px 36px -8px rgba(230,177,126,.6);}
   .fab:active{transform:translateY(0) scale(.96);}
+
+  /* ---- Toast micro-frasi ---- */
+  .toast{
+    position:absolute;left:50%;bottom:calc(var(--tabbar-h) + 22px + env(safe-area-inset-bottom));z-index:5;
+    transform:translate(-50%, 14px);
+    max-width:78%;
+    padding:11px 18px;border-radius:99px;
+    background:rgba(37,43,54,.96);border:1px solid var(--line-strong);
+    color:var(--cream);font-size:.92rem;font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    box-shadow:0 12px 28px -10px rgba(0,0,0,.6);
+    opacity:0;pointer-events:none;
+    transition:opacity .3s var(--ease),transform .3s var(--ease);
+  }
+  .toast.show{opacity:1;transform:translate(-50%, 0);}
+  .toast.special{
+    background:var(--warm-soft);border-color:var(--warm);color:var(--warm);
+    font-family:"Quicksand",sans-serif;font-weight:600;
+  }
 
   /* ---- Bottom sheet ---- */
   .overlay{
@@ -490,6 +638,13 @@
   }
   .rep-tomorrow .t-label{font-size:.72rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--cool);margin-bottom:6px;}
   .rep-tomorrow .t-text{font-size:.96rem;color:var(--cream-dim);line-height:1.45;}
+  .rep-residual{
+    margin-top:22px;padding:16px 18px;
+    background:rgba(230,177,126,.06);border:1px solid var(--line);
+    border-radius:var(--r-md);
+  }
+  .rep-residual .t-label{font-size:.72rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--warm);margin-bottom:6px;}
+  .rep-residual .t-text{font-size:.96rem;color:var(--cream-dim);line-height:1.45;}
 
   /* focus & motion */
   button:focus-visible,.text-input:focus-visible{outline:2px solid var(--cool);outline-offset:3px;}
@@ -501,28 +656,70 @@
 <body>
   <div class="app">
     <div class="content">
-      <div class="greet" id="greet">Buongiorno</div>
-      <div class="date" id="date"></div>
-      <div class="phrase" id="phrase"></div>
+      <section class="view" data-view="oggi">
+        <div class="greet" id="greet">Buongiorno</div>
+        <div class="date" id="date"></div>
+        <div class="streak-oggi" id="streakOggi" hidden></div>
+        <div class="phrase" id="phrase"></div>
 
-      <div class="balance">
-        <div class="ring-wrap">
-          <svg class="ring-svg" viewBox="0 0 140 140" aria-hidden="true">
-            <circle class="ring-bg" cx="70" cy="70" r="52"></circle>
-            <circle id="ringCool" cx="70" cy="70" r="52"></circle>
-            <circle id="ringWarm" cx="70" cy="70" r="52"></circle>
-            <circle id="eyeWarm" r="3.6" opacity="0"></circle>
-            <circle id="eyeCool" r="3.6" opacity="0"></circle>
-          </svg>
-          <div class="ring-center">
-            <div class="ring-num" id="ringNum">0</div>
-            <div class="ring-label" id="ringLabel">attività</div>
+        <div id="weekNotice"></div>
+
+        <div class="balance">
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 140 140" aria-hidden="true">
+              <circle class="ring-bg" cx="70" cy="70" r="52"></circle>
+              <circle id="ringCool" cx="70" cy="70" r="52"></circle>
+              <circle id="ringWarm" cx="70" cy="70" r="52"></circle>
+              <circle id="eyeWarm" r="3.6" opacity="0"></circle>
+              <circle id="eyeCool" r="3.6" opacity="0"></circle>
+            </svg>
+            <div class="ring-center">
+              <div class="ring-num" id="ringNum">0</div>
+              <div class="ring-label" id="ringLabel">attività</div>
+            </div>
           </div>
+          <div class="ring-sub" id="ringSub"></div>
         </div>
-        <div class="ring-sub" id="ringSub"></div>
-      </div>
 
-      <div id="groups"></div>
+        <div id="groups"></div>
+      </section>
+
+      <section class="view" data-view="storico" hidden>
+        <h2 class="view-title">Storico</h2>
+        <div class="streak-card" id="streakCard"></div>
+        <div class="cal" id="cal"></div>
+      </section>
+
+      <section class="view placeholder" data-view="abitudini" hidden>
+        <div class="ph-icon">
+          <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a5 5 0 0 1 5-5h7"/><path d="M14 1.5 16.5 4 14 6.5"/><path d="M20 15a5 5 0 0 1-5 5H8"/><path d="M10 22.5 7.5 20 10 17.5"/></g></svg>
+        </div>
+        <div class="ph-title">Abitudini</div>
+        <div class="ph-text">Qui creerai e modificherai le abitudini ricorrenti.<br>In arrivo.</div>
+      </section>
+
+      <section class="view" data-view="impostazioni" hidden>
+        <h2 class="view-title">Impostazioni</h2>
+        <div class="set-group">
+          <label class="set-label" for="setName">Nome per il saluto</label>
+          <input class="text-input" id="setName" type="text" maxlength="30" autocomplete="off">
+        </div>
+        <div class="set-group">
+          <label class="set-label" for="setTime">Orario del report serale</label>
+          <input class="text-input" id="setTime" type="time">
+        </div>
+        <div class="set-group">
+          <div class="set-label">Tono delle frasi</div>
+          <div class="tone-opts" id="toneOpts">
+            <button class="tone-opt" data-tono="incoraggiante" aria-pressed="false">Incoraggiante</button>
+            <button class="tone-opt" data-tono="diretto" aria-pressed="false">Diretto</button>
+            <button class="tone-opt" data-tono="ironico" aria-pressed="false">Ironico</button>
+          </div>
+          <div class="set-hint">Cambia il carattere della frase del mattino, del report e dei messaggi speciali.</div>
+        </div>
+        <button class="btn btn-primary set-save" id="setSave">Salva</button>
+        <div class="set-saved" id="setSaved" hidden>Impostazioni salvate</div>
+      </section>
     </div>
 
     <button class="report-btn" id="reportBtn" aria-label="Report della giornata">
@@ -532,6 +729,27 @@
     </button>
 
     <button class="fab" id="fab" aria-label="Aggiungi attività">+</button>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <nav class="tabbar" id="tabbar">
+      <button class="tab active" data-view="oggi">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="5.5"/><line x1="12" y1="18.5" x2="12" y2="21"/><line x1="3" y1="12" x2="5.5" y2="12"/><line x1="18.5" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="7.4" y2="7.4"/><line x1="16.6" y1="16.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="16.6" y2="7.4"/><line x1="7.4" y1="16.6" x2="5.6" y2="18.4"/></g></svg>
+        <span>Oggi</span>
+      </button>
+      <button class="tab" data-view="storico">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Storico</span>
+      </button>
+      <button class="tab" data-view="abitudini">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a5 5 0 0 1 5-5h7"/><path d="M14 1.5 16.5 4 14 6.5"/><path d="M20 15a5 5 0 0 1-5 5H8"/><path d="M10 22.5 7.5 20 10 17.5"/></g></svg>
+        <span>Abitudini</span>
+      </button>
+      <button class="tab" data-view="impostazioni">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></g><circle cx="9" cy="8" r="2.6" fill="currentColor"/><circle cx="15" cy="16" r="2.6" fill="currentColor"/></svg>
+        <span>Impostazioni</span>
+      </button>
+    </nav>
 
     <div class="overlay" id="overlay"></div>
     <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Nuova attività">
@@ -591,6 +809,23 @@
       </div>
       <div class="report-body" id="reportBody"></div>
     </div>
+
+    <div class="report-panel" id="dayPanel" role="dialog" aria-modal="true" aria-label="Dettaglio del giorno">
+      <div class="report-head">
+        <div class="report-title">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <div class="report-h1">Quel giorno</div>
+            <div class="report-date" id="dayDate"></div>
+          </div>
+        </div>
+        <button class="report-close" id="dayClose" aria-label="Chiudi">×</button>
+      </div>
+      <div class="report-body" id="dayBody"></div>
+    </div>
   </div>
 
 
@@ -602,7 +837,8 @@
    Lista task binarie · categorie · IndexedDB · seed file
    ============================================================ */
 
-const USER_NAME = "Gabriele";   // personalizza il saluto
+// Impostazioni (modificabili dalla schermata Impostazioni, salvate in meta.settings)
+let settings = { nome: "Gabriele", oraReport: "21:00", tono: "incoraggiante" };
 
 /* ---------- Seed file: abitudini ricorrenti (bootstrap una tantum) ---------- */
 const SEED_CATEGORIES = [
@@ -622,7 +858,7 @@ const SEED_TEMPLATES = [
   { id:"t-riordino",  testo:"Riordinare per 10 minuti",      categoriaId:"cat-personale", tipo:"binaria", ricorrenza:{type:"daily"},            carryover:false, essenziale:false, attivo:true, ordine:6 },
   { id:"t-caro",      testo:"Scrivere a una persona cara",   categoriaId:"cat-personale", tipo:"binaria", ricorrenza:{type:"daily"},            carryover:false, essenziale:false, attivo:true, ordine:7 },
   { id:"t-acqua",     testo:"Bere acqua",                    categoriaId:"cat-salute",    tipo:"misurabile", ricorrenza:{type:"daily"}, carryover:false, essenziale:true,  attivo:true, ordine:8, obiettivoBase:8,  unita:"bicchieri", passo:1 },
-  { id:"t-lettura",   testo:"Leggere",                       categoriaId:"cat-mente",     tipo:"misurabile", ricorrenza:{type:"daily"}, carryover:false, essenziale:false, attivo:true, ordine:9, obiettivoBase:20, unita:"pagine",    passo:5 },
+  { id:"t-lettura",   testo:"Leggere",                       categoriaId:"cat-mente",     tipo:"misurabile", ricorrenza:{type:"daily"}, carryover:true,  essenziale:false, attivo:true, ordine:9, obiettivoBase:20, unita:"pagine",    passo:5 },
 ];
 
 const PHRASES = [
@@ -652,6 +888,14 @@ function todayKey(d = new Date()){
 }
 function dayNumber(d = new Date()){
   return Math.floor((d - new Date(d.getFullYear(),0,0)) / 86400000);
+}
+// Chiave della settimana = lunedì di quella settimana (le settimane partono di lunedì)
+function weekKey(d){
+  const date = (typeof d === "string") ? new Date(d + "T00:00:00") : new Date(d);
+  const diff = (date.getDay() + 6) % 7;   // giorni dal lunedì
+  const monday = new Date(date);
+  monday.setDate(date.getDate() - diff);
+  return todayKey(monday);
 }
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
@@ -714,13 +958,18 @@ async function initStore(){
 }
 
 /* ---------- Bootstrap & materializzazione ---------- */
-// Aggiunge solo le voci del seed non ancora presenti (per id): primo avvio le aggiunge
-// tutte, gli avvii successivi solo le nuove. I dati esistenti non vengono toccati.
+// Aggiunge solo le voci del seed non ancora presenti (per id), e allinea il flag carryover
+// delle voci di seed esistenti al valore attuale. I dati delle attività non vengono toccati.
+// NOTA: in Parte 6 (gestione abitudini con eliminazione) questo allineamento andrà rivisto.
 async function ensureSeed(){
   const haveCat = new Set((await store.getAll("categories")).map(c => c.id));
   for(const c of SEED_CATEGORIES){ if(!haveCat.has(c.id)) await store.put("categories", c); }
-  const haveTpl = new Set((await store.getAll("templates")).map(t => t.id));
-  for(const t of SEED_TEMPLATES){ if(!haveTpl.has(t.id)) await store.put("templates", t); }
+  const tplById = new Map((await store.getAll("templates")).map(t => [t.id, t]));
+  for(const t of SEED_TEMPLATES){
+    const ex = tplById.get(t.id);
+    if(!ex){ await store.put("templates", t); }
+    else if(ex.carryover !== t.carryover){ ex.carryover = t.carryover; await store.put("templates", ex); }
+  }
 }
 async function materializeToday(){
   const today = todayKey();
@@ -730,6 +979,7 @@ async function materializeToday(){
   const haveTpl = new Set(todays.filter(t => t.templateId).map(t => t.templateId));
   const templates = (await store.getAll("templates")).filter(t => t.attivo !== false);
   let order = todays.length;
+  const newResiduals = [];
   for(const tpl of templates){
     if(!occursOn(tpl.ricorrenza, dow)) continue;
     if(haveTpl.has(tpl.id)) continue;
@@ -740,23 +990,49 @@ async function materializeToday(){
       ordine: order++, creataIl: Date.now(),
     };
     if(base.tipo === "misurabile"){
-      base.obiettivoBase = tpl.obiettivoBase || 1;
-      base.progressoOggi = 0;
+      const B = tpl.obiettivoBase || 1;
+      base.obiettivoBase = B;
       base.unita = tpl.unita || "";
       base.passo = tpl.passo || 1;
+      base.progressoOggi = 0;
+      let inherited = 0;
+      if(tpl.carryover){
+        const prev = all
+          .filter(t => t.templateId === tpl.id && t.data < today)
+          .sort((a,b) => (a.data < b.data ? 1 : -1))[0];
+        if(prev){
+          const prevO = prev.obiettivoOggi || prev.obiettivoBase || B;
+          const prevP = prev.progressoOggi || 0;
+          const capped = Math.min(Math.max(0, prevO - prevP), 2 * B);   // tetto: 2 giorni
+          if(weekKey(prev.data) !== weekKey(today)){
+            // azzeramento settimanale: il debito non passa alla settimana nuova
+            if(capped > 0) newResiduals.push({ templateId: tpl.id, nome: tpl.testo, residuo: capped, unita: tpl.unita || "" });
+            inherited = 0;
+          } else {
+            inherited = capped;
+          }
+        }
+      }
+      base.debitoEreditato = inherited;
+      base.obiettivoOggi = B + inherited;
     } else {
       base.completata = false;
     }
     await store.put("tasks", base);
   }
   const meta = (await store.get("meta","state")) || { key:"state" };
+  const prevDate = meta.lastDate;
+  // Chiude i conti dell'ultimo giorno attivo, così streak e calendario non dipendono dal report
+  if(prevDate && prevDate !== today) await finalizeDay(prevDate);
   meta.lastDate = today;
+  if(newResiduals.length) meta.pendingResiduals = newResiduals;
   await store.put("meta", meta);
 }
 
 /* ---------- State in memoria di runtime ---------- */
 let categories = [];
 let todayTasks = [];
+let pendingResiduals = [];
 
 async function loadState(){
   categories = (await store.getAll("categories")).sort((a,b) => a.ordine - b.ordine);
@@ -779,7 +1055,7 @@ function renderHeader(){
   const now = new Date();
   const h = now.getHours();
   const hello = h < 12 ? "Buongiorno" : (h < 18 ? "Buon pomeriggio" : "Buonasera");
-  document.getElementById("greet").textContent = USER_NAME ? `${hello}, ${USER_NAME}` : hello;
+  document.getElementById("greet").textContent = settings.nome ? `${hello}, ${settings.nome}` : hello;
   document.getElementById("date").textContent =
     now.toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long" });
   document.getElementById("phrase").textContent = PHRASES[dayNumber() % PHRASES.length];
@@ -802,6 +1078,7 @@ function phraseContext(){
     totali: todayTasks.length,
     fatti: todayTasks.filter(t => isDone(t)).length,
     categoriePendenti: pendentiCat,
+    tono: settings.tono,
   };
 }
 function setPhrase(text){
@@ -900,6 +1177,25 @@ function renderBalance(){
     subEl.classList.remove("balanced");
   }
   tweenRing(p);
+  renderStreakOggi();
+}
+
+function renderWeekNotice(){
+  const el = document.getElementById("weekNotice");
+  if(!pendingResiduals || !pendingResiduals.length){ el.innerHTML = ""; return; }
+  const list = pendingResiduals
+    .map(r => `${escapeHtml(r.nome)} ${r.residuo} ${escapeHtml(r.unita || "")}`.trim())
+    .join(" · ");
+  el.innerHTML = `<div class="week-notice">
+    <div class="wn-text"><span class="wn-title">la settimana scorsa</span>sei rimasto indietro di ${list}. Si riparte.</div>
+    <button class="wn-close" id="wnClose" aria-label="Ho capito">×</button>
+  </div>`;
+  document.getElementById("wnClose").addEventListener("click", dismissResiduals);
+}
+async function dismissResiduals(){
+  pendingResiduals = [];
+  await setMeta({ pendingResiduals: [] });
+  renderWeekNotice();
 }
 
 function renderGroups(){
@@ -958,11 +1254,18 @@ function taskHtmlBinary(t, cat){
 function taskHtmlMeasurable(t, cat){
   const oneTime = !t.templateId;
   const prog = t.progressoOggi || 0;
-  const obj  = t.obiettivoBase || 0;
-  const done = isDone(t);
-  const pct  = obj ? Math.min(100, Math.round(prog / obj * 100)) : 0;
-  const checkStyle = done ? `style="background:${cat.colore};border-color:${cat.colore}"` : "";
-  return `<div class="task measurable ${done ? "done" : ""}">
+  const base = t.obiettivoBase || 0;
+  const target = t.obiettivoOggi || base;           // base + debito ereditato
+  const debt = Math.max(0, (t.debitoEreditato || 0));
+  const reachedBase = prog >= base;
+  const cleared = prog >= target;
+  const pct = target ? Math.min(100, Math.round(prog / target * 100)) : 0;
+  const basePct = (target && debt > 0) ? Math.round(base / target * 100) : 0;
+  const stateClass = cleared ? "done" : (reachedBase ? "reached" : "");
+  const checkStyle = reachedBase ? `style="background:${cat.colore};border-color:${cat.colore}"` : "";
+  const recTag = debt > 0 ? `<span class="rec-tag">recupero</span>` : "";
+  const tick = (basePct > 0 && basePct < 100) ? `<span class="meas-tick" style="left:${basePct}%"></span>` : "";
+  return `<div class="task measurable ${stateClass}">
     <div class="task-top">
       <span class="check" ${checkStyle}>
         <svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg>
@@ -971,11 +1274,17 @@ function taskHtmlMeasurable(t, cat){
       ${t.essenziale ? `<span class="ess-dot" title="essenziale"></span>` : ""}
       ${oneTime ? `<button class="task-del" data-id="${t.id}" aria-label="Rimuovi">×</button>` : ""}
     </div>
-    <div class="meas-track" style="--c:${cat.colore}"><span class="meas-fill" style="width:${pct}%;background:${cat.colore}"></span></div>
+    <div class="meas-track">
+      <span class="meas-fill" style="width:${pct}%;background:${cat.colore}"></span>
+      ${tick}
+    </div>
     <div class="meas-row">
-      <button class="meas-progress" data-id="${t.id}" title="Tocca per inserire la cifra esatta">
-        <span class="meas-now">${prog}</span> <span class="meas-sep">/</span> ${obj} ${escapeHtml(t.unita || "")}
-      </button>
+      <div class="meas-left">
+        <button class="meas-progress" data-id="${t.id}" title="Tocca per inserire la cifra esatta">
+          <span class="meas-now">${prog}</span> <span class="meas-sep">/</span> ${target} ${escapeHtml(t.unita || "")}
+        </button>
+        ${recTag}
+      </div>
       <div class="stepper">
         <button class="step-btn" data-id="${t.id}" data-act="dec" aria-label="Diminuisci">−</button>
         <button class="step-btn" data-id="${t.id}" data-act="inc" aria-label="Aumenta">+</button>
@@ -985,13 +1294,26 @@ function taskHtmlMeasurable(t, cat){
 }
 
 /* ---------- Azioni ---------- */
+// Tutte le essenziali completate? · Misurabile col recupero azzerato (oltre l'obiettivo gonfiato)?
+function essAllDone(){
+  const e = todayTasks.filter(t => t.essenziale);
+  return e.length > 0 && e.every(isDone);
+}
+function isCleared(t){
+  if(t.tipo !== "misurabile") return isDone(t);
+  return (t.progressoOggi || 0) >= (t.obiettivoOggi || t.obiettivoBase || 0);
+}
+
 async function toggleTask(id){
   const t = todayTasks.find(x => x.id === id);
   if(!t) return;
+  const wasDone = isDone(t);
+  const essBefore = essAllDone();
   t.completata = !t.completata;
   await store.put("tasks", t);
   renderGroups();
   renderBalance();
+  if(!wasDone && isDone(t)) celebrate(t, { essBefore });
 }
 async function removeTask(id){
   await store.remove("tasks", id);
@@ -1004,21 +1326,32 @@ async function removeTask(id){
 async function stepMeasurable(id, act){
   const t = todayTasks.find(x => x.id === id);
   if(!t || t.tipo !== "misurabile") return;
+  const wasDone = isDone(t), wasCleared = isCleared(t), essBefore = essAllDone();
   const passo = t.passo || 1;
   const cur = t.progressoOggi || 0;
   t.progressoOggi = act === "inc" ? cur + passo : Math.max(0, cur - passo);
   await store.put("tasks", t);
   renderGroups();
   renderBalance();
+  afterMeasurableChange(t, wasDone, wasCleared, essBefore);
 }
 async function setMeasurable(id, value){
   const t = todayTasks.find(x => x.id === id);
   if(!t || t.tipo !== "misurabile") return;
+  const wasDone = isDone(t), wasCleared = isCleared(t), essBefore = essAllDone();
   const v = Math.max(0, Math.round(Number(value) || 0));
   t.progressoOggi = v;
   await store.put("tasks", t);
   renderGroups();
   renderBalance();
+  afterMeasurableChange(t, wasDone, wasCleared, essBefore);
+}
+function afterMeasurableChange(t, wasDone, wasCleared, essBefore){
+  if(!wasCleared && isCleared(t) && (t.debitoEreditato || 0) > 0){
+    celebrate(t, { essBefore, milestone: "recupero" });
+  } else if(!wasDone && isDone(t)){
+    celebrate(t, { essBefore });
+  }
 }
 // Inserimento della cifra esatta: la riga del progresso diventa un campo numerico
 function editMeasurable(id){
@@ -1039,6 +1372,48 @@ function editMeasurable(id){
     if(e.key === "Enter"){ e.preventDefault(); commit(); }
     else if(e.key === "Escape"){ committed = true; renderGroups(); }
   });
+}
+
+/* ---------- Micro-frasi al completamento (locali + Claude nei momenti speciali) ---------- */
+const CHEERS = ["fatto","uno in meno","ben fatto","ottimo","avanti così","un passo avanti",
+                "bene così","così si fa","un altro chiuso","continua così","ci siamo","spuntata"];
+let toastTimer = null;
+
+function celebrate(t, opts){
+  const essNowAll = essAllDone();
+  let type = "generic";
+  if(t.essenziale && !opts.essBefore && essNowAll) type = "equilibrio";       // ultima essenziale chiusa
+  else if(opts.milestone === "recupero")           type = "recupero";          // debito azzerato
+
+  const local = type === "equilibrio" ? "giornata in equilibrio"
+              : type === "recupero"   ? "recupero completato"
+              : CHEERS[Math.floor(Math.random() * CHEERS.length)];
+  showToast(local, type !== "generic");
+
+  // Solo i momenti speciali chiamano Claude; la frase locale resta se è offline o lento
+  if(type !== "generic"){
+    fetchCheer(type, t).then(txt => { if(txt) showToast(txt, true); });
+  }
+}
+function showToast(text, special){
+  const el = document.getElementById("toast");
+  if(!el) return;
+  el.textContent = text;
+  el.classList.toggle("special", !!special);
+  el.classList.add("show");
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), special ? 3200 : 2000);
+}
+async function fetchCheer(type, t){
+  try {
+    const res = await fetch("/.netlify/functions/cheer", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ tipo: type, attivita: t.testo, tono: settings.tono }),
+    });
+    if(res.ok){ const d = await res.json(); return (d.text || "").trim(); }
+  } catch { /* offline: resta la frase locale */ }
+  return null;
 }
 
 /* ---------- Bottom sheet ---------- */
@@ -1107,9 +1482,37 @@ async function addTask(){
   renderBalance();
 }
 
-/* ---------- Report serale ---------- */
-const REPORT_HOUR = 21;   // dalle 21:00 il report si apre da solo all'apertura
+/* ---------- Navigazione & Impostazioni ---------- */
+function switchView(view){
+  document.querySelectorAll(".content .view").forEach(v => { v.hidden = (v.dataset.view !== view); });
+  document.querySelectorAll("#tabbar .tab").forEach(t => t.classList.toggle("active", t.dataset.view === view));
+  const onOggi = view === "oggi";
+  document.getElementById("fab").style.display = onOggi ? "" : "none";
+  document.getElementById("reportBtn").style.display = onOggi ? "" : "none";
+  document.querySelector(".content").scrollTop = 0;
+  if(view === "impostazioni") renderSettings();
+  if(view === "storico") renderStorico();
+}
+function renderSettings(){
+  document.getElementById("setName").value = settings.nome || "";
+  document.getElementById("setTime").value = String(settings.oraReport || "21:00");
+  document.querySelectorAll("#toneOpts .tone-opt").forEach(b =>
+    b.setAttribute("aria-pressed", b.dataset.tono === settings.tono ? "true" : "false"));
+  document.getElementById("setSaved").hidden = true;
+}
+async function saveSettings(){
+  const nome = document.getElementById("setName").value.trim();
+  const ora  = document.getElementById("setTime").value || "21:00";
+  const tono = document.querySelector('#toneOpts .tone-opt[aria-pressed="true"]')?.dataset.tono || settings.tono;
+  settings = { ...settings, nome, oraReport: ora, tono };
+  await setMeta({ settings });
+  renderHeader();   // il saluto può cambiare
+  const saved = document.getElementById("setSaved");
+  saved.hidden = false;
+  setTimeout(() => { saved.hidden = true; }, 2200);
+}
 
+/* ---------- Report serale ---------- */
 async function getMeta(){ return (await store.get("meta","state")) || { key:"state" }; }
 async function setMeta(patch){
   const m = await getMeta();
@@ -1172,6 +1575,13 @@ function renderReportBody(s, outlook){
     }
   }
 
+  if(pendingResiduals && pendingResiduals.length){
+    const rlist = pendingResiduals
+      .map(r => `${escapeHtml(r.nome)} ${r.residuo} ${escapeHtml(r.unita || "")}`.trim())
+      .join(", ");
+    html += `<div class="rep-residual"><div class="t-label">settimana scorsa</div><div class="t-text">Eri rimasto indietro di ${rlist}. Settimana nuova, si riparte da zero.</div></div>`;
+  }
+
   const tText = outlook.tot === 0
     ? "Domani non ci sono attività ricorrenti in programma."
     : `Domani ti aspettano ${outlook.tot} attività${outlook.ess ? `, di cui ${outlook.ess} ${outlook.ess === 1 ? "essenziale" : "essenziali"}` : ""}.`;
@@ -1201,6 +1611,7 @@ async function fetchReportText(s, outlook){
     totali: s.totali, fatti: s.fatti,
     categorie: s.cats.map(c => ({ nome:c.nome, fatti:c.fatti, totali:c.totali })),
     domani: outlook,
+    tono: settings.tono,
   };
   try {
     const res = await fetch("/.netlify/functions/report", {
@@ -1218,7 +1629,7 @@ async function fetchReportText(s, outlook){
 }
 
 async function saveDaySnapshot(s, outlook, text){
-  await store.put("days", {
+  const snap = {
     data: todayKey(),
     totali: s.totali, fatti: s.fatti,
     essenzialiTotali: s.essTot, essenzialiFatti: s.essDone,
@@ -1227,7 +1638,10 @@ async function saveDaySnapshot(s, outlook, text){
     reportTesto: text,
     domani: outlook,
     generatoIl: Date.now(),
-  });
+  };
+  await store.put("days", snap);
+  daySnaps.set(snap.data, snap);
+  renderStreakOggi();
 }
 
 async function openReport(auto){
@@ -1245,15 +1659,213 @@ function closeReport(){
   document.getElementById("reportPanel").classList.remove("open");
 }
 
+/* ---------- Storico & Streak ---------- */
+let storicoMonth = null;
+let daySnaps = new Map();
+
+function flameSvg(size = 16){
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true"><path d="M12 2c1 3-1 4.5-2.5 6.2C8 10 7 11.7 7 13.7 7 17.2 9.2 20 12 20s5-2.8 5-6.3c0-2.4-1.4-4.3-2.8-5.8C13 6.4 12.6 4 12 2z" fill="currentColor"/></svg>`;
+}
+function addDays(d, n){ const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function formatLongDate(key){
+  return new Date(key + "T00:00:00").toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long" });
+}
+
+// Costruisce (se manca) lo snapshot di un giorno passato a partire dai suoi task salvati
+async function finalizeDay(dateKey){
+  if(await store.get("days", dateKey)) return;
+  const dayTasks = (await store.getAll("tasks")).filter(t => t.data === dateKey);
+  if(dayTasks.length === 0) return;
+  const cs = await store.getAll("categories");
+  const essTot = dayTasks.filter(t => t.essenziale).length;
+  const essDone = dayTasks.filter(t => t.essenziale && isDone(t)).length;
+  const cats = [];
+  for(const c of cs){
+    const items = dayTasks.filter(t => t.categoriaId === c.id);
+    if(items.length) cats.push({ nome:c.nome, fatti: items.filter(t => isDone(t)).length, totali: items.length });
+  }
+  await store.put("days", {
+    data: dateKey,
+    totali: dayTasks.length,
+    fatti: dayTasks.filter(t => isDone(t)).length,
+    essenzialiTotali: essTot,
+    essenzialiFatti: essDone,
+    essenzialiCompletate: essTot > 0 && essDone === essTot,
+    categorie: cats,
+    reportTesto: "",
+    domani: null,
+    generatoIl: Date.now(),
+  });
+}
+
+// Stato di un giorno: success (essenziali tutti fatti o nessun essenziale) · fail · pending (oggi in corso) · missing
+function liveTodayStatus(){
+  const essTot = todayTasks.filter(t => t.essenziale).length;
+  if(essTot === 0) return "success";
+  return essAllDone() ? "success" : "pending";
+}
+function snapStatus(snap){
+  if(!snap) return "missing";
+  if((snap.essenzialiTotali || 0) === 0) return "success";
+  return snap.essenzialiCompletate ? "success" : "fail";
+}
+function statusFor(key){
+  return key === todayKey() ? liveTodayStatus() : snapStatus(daySnaps.get(key));
+}
+function computeStreak(){
+  let streak = 0;
+  const today = new Date();
+  for(let i = 0; i < 400; i++){
+    const st = statusFor(todayKey(addDays(today, -i)));
+    if(st === "success"){ streak++; continue; }
+    if(st === "pending"){ continue; }   // oggi non ancora chiuso: non conta, non spezza
+    break;
+  }
+  return streak;
+}
+function computeRecord(){
+  const keys = [...daySnaps.keys()].sort();
+  const today = new Date();
+  const startKey = keys.length ? keys[0] : todayKey(today);
+  let run = 0, max = 0;
+  for(let d = new Date(startKey + "T00:00:00"); todayKey(d) <= todayKey(today); d = addDays(d, 1)){
+    const st = statusFor(todayKey(d));
+    if(st === "success"){ run++; if(run > max) max = run; }
+    else if(st === "pending"){ /* in corso */ }
+    else run = 0;
+  }
+  return max;
+}
+
+function renderStreakOggi(){
+  const el = document.getElementById("streakOggi");
+  if(!el) return;
+  const s = computeStreak();
+  if(s <= 0){ el.hidden = true; el.innerHTML = ""; return; }
+  el.hidden = false;
+  el.innerHTML = `${flameSvg(15)}<span>${s} ${s === 1 ? "giorno" : "giorni"} in equilibrio</span>`;
+  el.onclick = () => switchView("storico");
+}
+
+async function renderStorico(){
+  daySnaps = new Map((await store.getAll("days")).map(s => [s.data, s]));
+  if(!storicoMonth){ const n = new Date(); storicoMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
+  renderStreakCard();
+  renderCalendar();
+}
+function renderStreakCard(){
+  const el = document.getElementById("streakCard");
+  if(!el) return;
+  const cur = computeStreak(), rec = computeRecord();
+  el.innerHTML =
+    `<div class="streak-main">
+      <span class="streak-flame">${flameSvg(26)}</span>
+      <span class="streak-num">${cur}</span>
+      <span class="streak-unit">${cur === 1 ? "giorno" : "giorni"}<br>in equilibrio</span>
+    </div>
+    <div class="streak-rec"><span>record</span><b>${rec}</b></div>`;
+}
+function renderCalendar(){
+  const el = document.getElementById("cal");
+  if(!el) return;
+  const y = storicoMonth.getFullYear(), m = storicoMonth.getMonth();
+  const mesi = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+  const todayK = todayKey();
+  const startOffset = (new Date(y, m, 1).getDay() + 6) % 7;   // lunedì = 0
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const now = new Date();
+  const atCurrent = (y === now.getFullYear() && m === now.getMonth());
+
+  let cells = "";
+  for(let i = 0; i < startOffset; i++) cells += `<div class="cal-day pad"></div>`;
+  for(let d = 1; d <= daysInMonth; d++){
+    const key = `${y}-${String(m + 1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    let cls = "cal-day", tappable = false;
+    if(key > todayK){ cls += " future"; }
+    else {
+      cls += " " + statusFor(key);
+      if(daySnaps.get(key) || key === todayK) tappable = true;
+    }
+    if(key === todayK) cls += " today";
+    cells += `<div class="${cls}"${tappable ? ` data-day="${key}"` : ""}><span>${d}</span></div>`;
+  }
+
+  el.innerHTML =
+    `<div class="cal-head">
+      <button class="cal-nav" id="calPrev" aria-label="Mese precedente">‹</button>
+      <div class="cal-title">${mesi[m]} ${y}</div>
+      <button class="cal-nav" id="calNext" aria-label="Mese successivo"${atCurrent ? " disabled" : ""}>›</button>
+    </div>
+    <div class="cal-grid dow"><div>L</div><div>M</div><div>M</div><div>G</div><div>V</div><div>S</div><div>D</div></div>
+    <div class="cal-grid">${cells}</div>
+    <div class="cal-legend">
+      <span><i class="lg success"></i> fatto</span>
+      <span><i class="lg fail"></i> parziale</span>
+      <span><i class="lg missing"></i> assente</span>
+    </div>`;
+
+  document.getElementById("calPrev").addEventListener("click", () => { storicoMonth = new Date(y, m - 1, 1); renderCalendar(); });
+  if(!atCurrent) document.getElementById("calNext").addEventListener("click", () => { storicoMonth = new Date(y, m + 1, 1); renderCalendar(); });
+  el.querySelectorAll(".cal-day[data-day]").forEach(c => c.addEventListener("click", () => openDayDetail(c.dataset.day)));
+}
+
+function openDayDetail(key){
+  const isToday = (key === todayKey());
+  const snap = isToday ? null : daySnaps.get(key);
+  document.getElementById("dayDate").textContent = formatLongDate(key);
+  let s;
+  if(snap){
+    s = { essTot: snap.essenzialiTotali || 0, essDone: snap.essenzialiFatti || 0, totali: snap.totali || 0, fatti: snap.fatti || 0, cats: snap.categorie || [], essAllDone: snap.essenzialiCompletate };
+  } else {
+    const r = reportStats();
+    s = { essTot: r.essTot, essDone: r.essDone, totali: r.totali, fatti: r.fatti, cats: r.cats, essAllDone: r.essAllDone };
+  }
+  let html =
+    `<div class="rep-balance">
+      <div class="rep-stat ess"><div class="num">${s.essDone}<small>/${s.essTot}</small></div><div class="lab">essenziali</div></div>
+      <div class="rep-stat"><div class="num">${s.fatti}<small>/${s.totali}</small></div><div class="lab">in giornata</div></div>
+    </div>`;
+  if(s.essAllDone) html += `<div style="text-align:center"><span class="rep-badge">in equilibrio</span></div>`;
+
+  if(snap && snap.reportTesto){
+    html += `<div class="rep-section-label">il commento della sera</div><div class="rep-commentary">${escapeHtml(snap.reportTesto)}</div>`;
+  } else {
+    const msg = isToday ? "Giornata in corso." : "Nessun commento salvato per questo giorno.";
+    html += `<div class="rep-commentary" style="font-style:italic;color:var(--muted)">${msg}</div>`;
+  }
+
+  if(s.cats.length){
+    html += `<div class="rep-section-label">per area</div>`;
+    for(const c of s.cats){
+      const colore = (categories.find(x => x.nome === c.nome) || {}).colore || "#878f9d";
+      const pct = c.totali ? Math.round(c.fatti / c.totali * 100) : 0;
+      html += `<div class="rep-cat">
+        <span class="rep-cat-dot" style="background:${colore}"></span>
+        <span class="rep-cat-name">${escapeHtml(c.nome)}</span>
+        <span class="rep-cat-bar"><span class="rep-cat-fill" style="width:${pct}%;background:${colore}"></span></span>
+        <span class="rep-cat-count">${c.fatti}/${c.totali}</span>
+      </div>`;
+    }
+  }
+  document.getElementById("dayBody").innerHTML = html;
+  document.getElementById("dayPanel").classList.add("open");
+}
+function closeDayDetail(){ document.getElementById("dayPanel").classList.remove("open"); }
+
 /* ---------- Avvio ---------- */
 async function start(){
   await initStore();
   await ensureSeed();
   await materializeToday();
   await loadState();
+  const meta0 = await getMeta();
+  pendingResiduals = meta0.pendingResiduals || [];
+  settings = { ...settings, ...(meta0.settings || {}) };
+  daySnaps = new Map((await store.getAll("days")).map(s => [s.data, s]));
 
   renderHeader();
   buildChips();
+  renderWeekNotice();
   renderGroups();
   paintRing(0);
   renderBalance();
@@ -1282,10 +1894,26 @@ async function start(){
 
   document.getElementById("reportBtn").addEventListener("click", () => openReport(false));
   document.getElementById("reportClose").addEventListener("click", closeReport);
+  document.getElementById("dayClose").addEventListener("click", closeDayDetail);
 
-  // La sera, alla prima apertura dopo l'orario stabilito, il report si apre da solo
+  // Navigazione tra schermate
+  document.querySelectorAll("#tabbar .tab").forEach(t =>
+    t.addEventListener("click", () => switchView(t.dataset.view)));
+
+  // Impostazioni
+  document.querySelectorAll("#toneOpts .tone-opt").forEach(b =>
+    b.addEventListener("click", () => {
+      document.querySelectorAll("#toneOpts .tone-opt").forEach(x =>
+        x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    }));
+  document.getElementById("setSave").addEventListener("click", saveSettings);
+
+  // La sera, alla prima apertura dopo l'orario scelto, il report si apre da solo
   const meta = await getMeta();
-  if(new Date().getHours() >= REPORT_HOUR && meta.reportShownDate !== todayKey()){
+  const [rh, rm] = String(settings.oraReport || "21:00").split(":").map(Number);
+  const reportMin = (rh || 0) * 60 + (rm || 0);
+  const now = new Date();
+  if((now.getHours() * 60 + now.getMinutes()) >= reportMin && meta.reportShownDate !== todayKey()){
     openReport(true);
   }
 }

@@ -25,14 +25,23 @@ export default async (req) => {
     totali = 0,
     fatti = 0,
     categoriePendenti = [],
+    tono = "incoraggiante",
   } = ctx;
+
+  const toni = {
+    incoraggiante: "Mantieni un tono caldo, pacato e incoraggiante, mai squillante.",
+    diretto: "Mantieni un tono diretto ed essenziale, asciutto, senza fronzoli.",
+    ironico: "Mantieni un tono leggero e un po' ironico, con un sorriso, senza mai esagerare.",
+  };
+  const toneInstr = toni[tono] || toni.incoraggiante;
 
   const system =
     "Sei la voce di Equilibrio, un'app personale che aiuta a portare a termine le attività del giorno con calma. " +
-    "Scrivi UNA sola frase motivazionale in italiano, breve (da 5 a 14 parole), calda e pacata, mai squillante. " +
-    "Niente emoji, niente virgolette, niente punti esclamativi multipli. Varia il tono e le parole ogni volta. " +
+    "Scrivi UNA sola frase motivazionale in italiano, breve (da 5 a 14 parole). " +
+    "Niente emoji, niente virgolette, niente punti esclamativi multipli. Varia le parole ogni volta. " +
     "Usa il contesto per essere pertinente: se la giornata è appena iniziata invita con dolcezza a cominciare; " +
     "se mancano poche attività essenziali incoraggia a chiuderle; se sono già tutte fatte celebra l'equilibrio raggiunto, con misura. " +
+    toneInstr + " " +
     "Rispondi SOLO con la frase, senza nessun'altra parola.";
 
   const stato =

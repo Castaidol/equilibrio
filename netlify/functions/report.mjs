@@ -21,14 +21,23 @@ export default async (req) => {
     fatti = 0,
     categorie = [],
     domani = { tot: 0, ess: 0 },
+    tono = "incoraggiante",
   } = ctx;
+
+  const toni = {
+    incoraggiante: "Mantieni un tono caldo e pacato, gentile e senza colpa.",
+    diretto: "Mantieni un tono diretto ed essenziale, asciutto ma non freddo, senza fronzoli.",
+    ironico: "Mantieni un tono leggero e un po' ironico, con un sorriso, senza mai esagerare.",
+  };
+  const toneInstr = toni[tono] || toni.incoraggiante;
 
   const system =
     "Sei la voce di Equilibrio, un'app personale che aiuta a portare a termine le attività del giorno con calma. " +
-    "Scrivi un breve commento serale in italiano, 2 o 3 frasi, caldo e pacato. " +
-    "Riconosci con misura ciò che è stato fatto, sii gentile e senza colpa su ciò che è rimasto indietro, " +
-    "e chiudi con uno sguardo sereno a domani. " +
+    "Scrivi un breve commento serale in italiano, 2 o 3 frasi. " +
+    "Riconosci con misura ciò che è stato fatto, sii sereno su ciò che è rimasto indietro, " +
+    "e chiudi con uno sguardo a domani. " +
     "Niente emoji, niente elenchi, niente virgolette, niente toni squillanti. Varia le parole. " +
+    toneInstr + " " +
     "Rispondi SOLO con il commento.";
 
   const essLine =
