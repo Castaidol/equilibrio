@@ -2,7 +2,7 @@
    App-shell cache per il funzionamento offline.
    Aggiorna CACHE (es. v2) quando cambi i file per forzare il refresh. */
 
-const CACHE = "equilibrio-v8";
+const CACHE = "equilibrio-v9";
 
 const SHELL = [
   "./",

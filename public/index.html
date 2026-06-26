@@ -185,6 +185,49 @@
   .cal-legend .lg.fail{border:1px solid var(--line-strong);}
   .cal-legend .lg.missing{background:var(--muted);opacity:.4;}
 
+  /* ---- Abitudini ---- */
+  .abit-head{display:flex;align-items:center;justify-content:space-between;margin:4px 0 20px;}
+  .abit-head .view-title{margin:0;}
+  .abit-add{
+    background:var(--warm-soft);border:1px solid rgba(230,177,126,.3);color:var(--warm);
+    font:inherit;font-size:.85rem;font-weight:600;padding:8px 15px;border-radius:99px;cursor:pointer;
+  }
+  .habit-row{
+    display:flex;align-items:center;gap:10px;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:8px;
+  }
+  .habit-row.paused{opacity:.5;}
+  .habit-main{
+    flex:1;display:flex;flex-direction:column;gap:7px;align-items:flex-start;text-align:left;
+    background:none;border:none;cursor:pointer;padding:13px 15px;color:var(--cream);font:inherit;
+  }
+  .habit-name{font-size:.98rem;font-weight:600;}
+  .habit-meta{display:flex;flex-wrap:wrap;gap:6px;}
+  .hb{font-size:.66rem;color:var(--cream-dim);background:var(--surface-2);padding:2px 8px;border-radius:99px;}
+  .hb.warm{color:var(--warm);background:var(--warm-soft);}
+  .hb.ess{color:var(--cool);background:rgba(111,178,182,.12);}
+  .hb.pause{color:var(--muted);background:transparent;border:1px solid var(--line-strong);}
+
+  .day-picker{display:flex;gap:7px;margin-bottom:22px;}
+  .day-opt{
+    flex:1;aspect-ratio:1;max-width:46px;border-radius:11px;
+    background:var(--surface);border:1px solid var(--line-strong);color:var(--cream-dim);
+    font:inherit;font-size:.82rem;cursor:pointer;transition:all .2s var(--ease);
+  }
+  .day-opt[aria-pressed="true"]{color:var(--cream);border-color:var(--warm);background:var(--warm-soft);}
+
+  .habit-manage{display:flex;gap:12px;margin-top:14px;}
+  .habit-pause{
+    flex:1;background:none;border:1px solid var(--line-strong);color:var(--cream-dim);
+    font:inherit;font-size:.9rem;padding:12px;border-radius:var(--r-sm);cursor:pointer;
+  }
+  .habit-delete{
+    flex:1;background:none;border:1px solid rgba(214,107,107,.4);color:#d98b8b;
+    font:inherit;font-size:.9rem;padding:12px;border-radius:var(--r-sm);cursor:pointer;
+    transition:all .2s var(--ease);
+  }
+  .habit-delete.armed{background:rgba(214,107,107,.16);border-color:#d98b8b;color:#e8a6a6;}
+
   /* ---- Header ---- */
   .greet{
     font-family:"Quicksand",sans-serif;
@@ -470,9 +513,11 @@
     border-top:1px solid var(--line-strong);
     border-radius:28px 28px 0 0;
     padding:10px 24px calc(26px + env(safe-area-inset-bottom));
+    max-height:92vh;overflow-y:auto;
     transform:translateY(110%);
     transition:transform .34s var(--ease);
   }
+  .sheet::-webkit-scrollbar{width:0;}
   .sheet.open{transform:translateY(0);}
   .grip{width:38px;height:4px;border-radius:99px;background:var(--line-strong);margin:0 auto 18px;}
   .sheet h2{
@@ -690,12 +735,12 @@
         <div class="cal" id="cal"></div>
       </section>
 
-      <section class="view placeholder" data-view="abitudini" hidden>
-        <div class="ph-icon">
-          <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a5 5 0 0 1 5-5h7"/><path d="M14 1.5 16.5 4 14 6.5"/><path d="M20 15a5 5 0 0 1-5 5H8"/><path d="M10 22.5 7.5 20 10 17.5"/></g></svg>
+      <section class="view" data-view="abitudini" hidden>
+        <div class="abit-head">
+          <h2 class="view-title">Abitudini</h2>
+          <button class="abit-add" id="abitAdd">+ Nuova</button>
         </div>
-        <div class="ph-title">Abitudini</div>
-        <div class="ph-text">Qui creerai e modificherai le abitudini ricorrenti.<br>In arrivo.</div>
+        <div id="abitList"></div>
       </section>
 
       <section class="view" data-view="impostazioni" hidden>
@@ -790,6 +835,74 @@
       <div class="sheet-actions">
         <button class="btn btn-ghost" id="cancelBtn">Annulla</button>
         <button class="btn btn-primary" id="addBtn" disabled>Aggiungi</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="hOverlay"></div>
+    <div class="sheet" id="habitSheet" role="dialog" aria-modal="true" aria-label="Abitudine">
+      <div class="grip"></div>
+      <h2 id="habitSheetTitle">Nuova abitudine</h2>
+
+      <div class="field-label">Nome</div>
+      <input class="text-input" id="hName" type="text" placeholder="Scrivi un'abitudine…" autocomplete="off">
+
+      <div class="field-label">Tipo</div>
+      <div class="type-toggle" id="hTypeToggle">
+        <button class="type-opt" data-type="binaria" aria-pressed="true">Da spuntare</button>
+        <button class="type-opt" data-type="misurabile" aria-pressed="false">Con obiettivo</button>
+      </div>
+
+      <div id="hMeasFields" class="meas-fields" hidden>
+        <div class="meas-fields-grid">
+          <div>
+            <div class="field-label">Obiettivo</div>
+            <input class="text-input compact" id="hObj" type="number" inputmode="numeric" min="1" value="10">
+          </div>
+          <div>
+            <div class="field-label">Unità</div>
+            <input class="text-input compact" id="hUnit" type="text" placeholder="pagine…" autocomplete="off">
+          </div>
+          <div>
+            <div class="field-label">Passo</div>
+            <input class="text-input compact" id="hStep" type="number" inputmode="numeric" min="1" value="1">
+          </div>
+        </div>
+        <button class="ess-row" id="hCarry" aria-pressed="false">
+          <span class="switch"></span>
+          <span class="ess-label">Recupero<span>Se resti indietro, l'obiettivo cresce il giorno dopo</span></span>
+        </button>
+      </div>
+
+      <div class="field-label">Categoria</div>
+      <div class="chips" id="hChips"></div>
+
+      <div class="field-label">Quando</div>
+      <div class="type-toggle" id="hRecToggle">
+        <button class="type-opt" data-rec="daily" aria-pressed="true">Tutti i giorni</button>
+        <button class="type-opt" data-rec="weekly" aria-pressed="false">Giorni scelti</button>
+      </div>
+      <div id="hDays" class="day-picker" hidden>
+        <button class="day-opt" data-day="1">L</button>
+        <button class="day-opt" data-day="2">M</button>
+        <button class="day-opt" data-day="3">M</button>
+        <button class="day-opt" data-day="4">G</button>
+        <button class="day-opt" data-day="5">V</button>
+        <button class="day-opt" data-day="6">S</button>
+        <button class="day-opt" data-day="0">D</button>
+      </div>
+
+      <button class="ess-row" id="hEss" aria-pressed="false">
+        <span class="switch"></span>
+        <span class="ess-label">Essenziale<span>Conta per l'equilibrio della giornata</span></span>
+      </button>
+
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" id="hCancel">Annulla</button>
+        <button class="btn btn-primary" id="hSave" disabled>Salva</button>
+      </div>
+      <div class="habit-manage" id="hManage" hidden>
+        <button class="habit-pause" id="hPause">Metti in pausa</button>
+        <button class="habit-delete" id="hDelete">Elimina</button>
       </div>
     </div>
 
@@ -958,17 +1071,16 @@ async function initStore(){
 }
 
 /* ---------- Bootstrap & materializzazione ---------- */
-// Aggiunge solo le voci del seed non ancora presenti (per id), e allinea il flag carryover
-// delle voci di seed esistenti al valore attuale. I dati delle attività non vengono toccati.
-// NOTA: in Parte 6 (gestione abitudini con eliminazione) questo allineamento andrà rivisto.
+// Aggiunge solo le voci del seed non ancora presenti (per id) e non eliminate dall'utente.
+// Le voci già esistenti non vengono più toccate: dopo la Parte 6 le modifiche dell'utente comandano.
 async function ensureSeed(){
   const haveCat = new Set((await store.getAll("categories")).map(c => c.id));
   for(const c of SEED_CATEGORIES){ if(!haveCat.has(c.id)) await store.put("categories", c); }
-  const tplById = new Map((await store.getAll("templates")).map(t => [t.id, t]));
+  const meta = await getMeta();
+  const dead = new Set(meta.deletedSeeds || []);
+  const haveTpl = new Set((await store.getAll("templates")).map(t => t.id));
   for(const t of SEED_TEMPLATES){
-    const ex = tplById.get(t.id);
-    if(!ex){ await store.put("templates", t); }
-    else if(ex.carryover !== t.carryover){ ex.carryover = t.carryover; await store.put("templates", ex); }
+    if(!haveTpl.has(t.id) && !dead.has(t.id)) await store.put("templates", t);
   }
 }
 async function materializeToday(){
@@ -1492,6 +1604,7 @@ function switchView(view){
   document.querySelector(".content").scrollTop = 0;
   if(view === "impostazioni") renderSettings();
   if(view === "storico") renderStorico();
+  if(view === "abitudini") renderAbitudini();
 }
 function renderSettings(){
   document.getElementById("setName").value = settings.nome || "";
@@ -1657,6 +1770,239 @@ async function openReport(auto){
 }
 function closeReport(){
   document.getElementById("reportPanel").classList.remove("open");
+}
+
+/* ---------- Gestione abitudini ---------- */
+let habitEditId = null;
+let hCat = null, hType = "binaria", hRec = "daily", hEss = false, hCarry = false, hActive = true;
+let hDaysSet = new Set();
+let deleteArmed = false;
+
+function recurrenceLabel(r){
+  if(!r || r.type === "daily") return "ogni giorno";
+  const names = { 1:"L", 2:"M", 3:"M", 4:"G", 5:"V", 6:"S", 0:"D" };
+  const order = [1,2,3,4,5,6,0];
+  const ds = (r.days || []).slice().sort((a,b) => order.indexOf(a) - order.indexOf(b));
+  if(ds.length === 0) return "nessun giorno";
+  if(ds.length === 7) return "ogni giorno";
+  return ds.map(d => names[d]).join(" ");
+}
+function habitBadges(t){
+  const bits = [];
+  if(t.tipo === "misurabile") bits.push(`<span class="hb">${t.obiettivoBase || 0} ${escapeHtml(t.unita || "")}</span>`);
+  bits.push(`<span class="hb">${recurrenceLabel(t.ricorrenza)}</span>`);
+  if(t.carryover) bits.push(`<span class="hb warm">recupero</span>`);
+  if(t.essenziale) bits.push(`<span class="hb ess">essenziale</span>`);
+  return bits.join("");
+}
+
+async function renderAbitudini(){
+  const root = document.getElementById("abitList");
+  const templates = (await store.getAll("templates")).sort((a,b) => (a.ordine || 0) - (b.ordine || 0));
+  if(templates.length === 0){
+    root.innerHTML = `<div class="empty">Ancora nessuna abitudine.<br>Tocca "+ Nuova" per crearne una.</div>`;
+    return;
+  }
+  let html = "";
+  for(const c of categories){
+    const items = templates.filter(t => t.categoriaId === c.id);
+    if(items.length === 0) continue;
+    html += `<div class="group">
+      <div class="group-head">
+        <span class="group-dot" style="background:${c.colore}"></span>
+        <span class="group-name">${escapeHtml(c.nome)}</span>
+      </div>`;
+    for(const t of items){
+      const paused = t.attivo === false;
+      html += `<div class="habit-row ${paused ? "paused" : ""}">
+        <button class="habit-main" data-id="${t.id}">
+          <span class="habit-name">${escapeHtml(t.testo)}${paused ? ` <span class="hb pause">in pausa</span>` : ""}</span>
+          <span class="habit-meta">${habitBadges(t)}</span>
+        </button>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  root.innerHTML = html;
+  root.querySelectorAll(".habit-main").forEach(b =>
+    b.addEventListener("click", () => openHabitSheet(b.dataset.id)));
+}
+
+function buildHabitChips(){
+  const wrap = document.getElementById("hChips");
+  wrap.innerHTML = categories.map(c =>
+    `<button class="chip" data-id="${c.id}" aria-pressed="false">
+       <span class="cdot" style="background:${c.colore}"></span>${escapeHtml(c.nome)}
+     </button>`).join("");
+  wrap.querySelectorAll(".chip").forEach(ch =>
+    ch.addEventListener("click", () => {
+      hCat = ch.dataset.id;
+      wrap.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === ch ? "true" : "false"));
+      validateHabit();
+    }));
+}
+function setHabitType(type){
+  hType = type;
+  document.querySelectorAll("#hTypeToggle .type-opt").forEach(b =>
+    b.setAttribute("aria-pressed", b.dataset.type === type ? "true" : "false"));
+  document.getElementById("hMeasFields").hidden = (type !== "misurabile");
+}
+function setHabitRec(rec){
+  hRec = rec;
+  document.querySelectorAll("#hRecToggle .type-opt").forEach(b =>
+    b.setAttribute("aria-pressed", b.dataset.rec === rec ? "true" : "false"));
+  document.getElementById("hDays").hidden = (rec !== "weekly");
+  validateHabit();
+}
+function paintHabitDays(){
+  document.querySelectorAll("#hDays .day-opt").forEach(b =>
+    b.setAttribute("aria-pressed", hDaysSet.has(Number(b.dataset.day)) ? "true" : "false"));
+}
+function validateHabit(){
+  const nameOk = document.getElementById("hName").value.trim().length > 0;
+  const daysOk = hRec === "daily" || hDaysSet.size > 0;
+  document.getElementById("hSave").disabled = !(nameOk && !!hCat && daysOk);
+}
+function resetDeleteArm(){
+  deleteArmed = false;
+  const btn = document.getElementById("hDelete");
+  if(btn){ btn.textContent = "Elimina"; btn.classList.remove("armed"); }
+}
+
+async function openHabitSheet(id){
+  buildHabitChips();
+  const tpl = id ? (await store.getAll("templates")).find(t => t.id === id) || null : null;
+  habitEditId = tpl ? tpl.id : null;
+
+  document.getElementById("habitSheetTitle").textContent = tpl ? "Modifica abitudine" : "Nuova abitudine";
+  document.getElementById("hName").value = tpl ? tpl.testo : "";
+  setHabitType(tpl && tpl.tipo ? tpl.tipo : "binaria");
+  document.getElementById("hObj").value  = tpl && tpl.obiettivoBase ? tpl.obiettivoBase : 10;
+  document.getElementById("hUnit").value = tpl && tpl.unita ? tpl.unita : "";
+  document.getElementById("hStep").value = tpl && tpl.passo ? tpl.passo : 1;
+  hCarry = !!(tpl && tpl.carryover);
+  document.getElementById("hCarry").setAttribute("aria-pressed", String(hCarry));
+  hEss = !!(tpl && tpl.essenziale);
+  document.getElementById("hEss").setAttribute("aria-pressed", String(hEss));
+  hCat = tpl ? tpl.categoriaId : (categories[0] ? categories[0].id : null);
+  document.querySelectorAll("#hChips .chip").forEach(ch =>
+    ch.setAttribute("aria-pressed", ch.dataset.id === hCat ? "true" : "false"));
+
+  const rec = tpl && tpl.ricorrenza ? tpl.ricorrenza : { type:"daily" };
+  hRec = rec.type === "weekly" ? "weekly" : "daily";
+  hDaysSet = new Set(hRec === "weekly" ? (rec.days || []) : []);
+  setHabitRec(hRec);
+  paintHabitDays();
+
+  hActive = tpl ? (tpl.attivo !== false) : true;
+  const manage = document.getElementById("hManage");
+  manage.hidden = !tpl;
+  if(tpl) document.getElementById("hPause").textContent = hActive ? "Metti in pausa" : "Riattiva";
+  resetDeleteArm();
+
+  validateHabit();
+  document.getElementById("hOverlay").classList.add("open");
+  document.getElementById("habitSheet").classList.add("open");
+}
+function closeHabitSheet(){
+  document.getElementById("hOverlay").classList.remove("open");
+  document.getElementById("habitSheet").classList.remove("open");
+}
+
+function buildTodayInstance(tpl){
+  const inst = {
+    id: uid(), data: todayKey(), templateId: tpl.id,
+    testo: tpl.testo, categoriaId: tpl.categoriaId, tipo: tpl.tipo || "binaria",
+    essenziale: !!tpl.essenziale,
+    ordine: todayTasks.length ? Math.max(...todayTasks.map(t => t.ordine)) + 1 : 0,
+    creataIl: Date.now(),
+  };
+  if(inst.tipo === "misurabile"){
+    inst.obiettivoBase = tpl.obiettivoBase || 1;
+    inst.unita = tpl.unita || "";
+    inst.passo = tpl.passo || 1;
+    inst.progressoOggi = 0;
+    inst.debitoEreditato = 0;
+    inst.obiettivoOggi = inst.obiettivoBase;
+  } else {
+    inst.completata = false;
+  }
+  return inst;
+}
+
+async function saveHabit(){
+  const testo = document.getElementById("hName").value.trim();
+  const daysOk = hRec === "daily" || hDaysSet.size > 0;
+  if(!testo || !hCat || !daysOk) return;
+
+  const all = await store.getAll("templates");
+  const existing = habitEditId ? all.find(t => t.id === habitEditId) : null;
+  const tpl = existing ? { ...existing } : { id: uid(), attivo: true, ordine: all.length + 1 };
+
+  tpl.testo = testo;
+  tpl.categoriaId = hCat;
+  tpl.tipo = hType;
+  tpl.essenziale = hEss;
+  tpl.ricorrenza = hRec === "weekly" ? { type:"weekly", days:[...hDaysSet] } : { type:"daily" };
+  if(hType === "misurabile"){
+    tpl.obiettivoBase = Math.max(1, Math.round(Number(document.getElementById("hObj").value) || 1));
+    tpl.unita = document.getElementById("hUnit").value.trim();
+    tpl.passo = Math.max(1, Math.round(Number(document.getElementById("hStep").value) || 1));
+    tpl.carryover = hCarry;
+  } else {
+    delete tpl.obiettivoBase; delete tpl.unita; delete tpl.passo;
+    tpl.carryover = false;
+  }
+  await store.put("templates", tpl);
+
+  // Abitudine nuova: compare anche oggi, se è attiva e oggi è un giorno valido
+  if(!existing && tpl.attivo !== false && occursOn(tpl.ricorrenza, new Date().getDay())){
+    if(!todayTasks.some(t => t.templateId === tpl.id)){
+      const inst = buildTodayInstance(tpl);
+      await store.put("tasks", inst);
+      todayTasks.push(inst);
+      renderGroups();
+      renderBalance();
+    }
+  }
+  closeHabitSheet();
+  renderAbitudini();
+}
+
+async function pauseHabit(){
+  if(!habitEditId) return;
+  const tpl = (await store.getAll("templates")).find(t => t.id === habitEditId);
+  if(!tpl) return;
+  tpl.attivo = (tpl.attivo === false);   // se in pausa riattiva, altrimenti mette in pausa (vale dai prossimi giorni)
+  await store.put("templates", tpl);
+  closeHabitSheet();
+  renderAbitudini();
+}
+function onDeleteClick(){
+  const btn = document.getElementById("hDelete");
+  if(!deleteArmed){
+    deleteArmed = true;
+    btn.textContent = "Tocca ancora per eliminare";
+    btn.classList.add("armed");
+    setTimeout(resetDeleteArm, 3000);
+    return;
+  }
+  deleteHabit();
+}
+async function deleteHabit(){
+  if(!habitEditId) return;
+  const id = habitEditId;
+  await store.remove("templates", id);
+  // Tombstone per le voci di seed: così un'abitudine di default eliminata non riappare
+  if(SEED_TEMPLATES.some(t => t.id === id)){
+    const meta = await getMeta();
+    const dead = new Set(meta.deletedSeeds || []);
+    dead.add(id);
+    await setMeta({ deletedSeeds: [...dead] });
+  }
+  resetDeleteArm();
+  closeHabitSheet();
+  renderAbitudini();
 }
 
 /* ---------- Storico & Streak ---------- */
@@ -1895,6 +2241,34 @@ async function start(){
   document.getElementById("reportBtn").addEventListener("click", () => openReport(false));
   document.getElementById("reportClose").addEventListener("click", closeReport);
   document.getElementById("dayClose").addEventListener("click", closeDayDetail);
+
+  // Gestione abitudini
+  document.getElementById("abitAdd").addEventListener("click", () => openHabitSheet());
+  document.getElementById("hOverlay").addEventListener("click", closeHabitSheet);
+  document.getElementById("hCancel").addEventListener("click", closeHabitSheet);
+  document.getElementById("hSave").addEventListener("click", saveHabit);
+  document.getElementById("hName").addEventListener("input", validateHabit);
+  document.querySelectorAll("#hTypeToggle .type-opt").forEach(b =>
+    b.addEventListener("click", () => setHabitType(b.dataset.type)));
+  document.querySelectorAll("#hRecToggle .type-opt").forEach(b =>
+    b.addEventListener("click", () => setHabitRec(b.dataset.rec)));
+  document.querySelectorAll("#hDays .day-opt").forEach(b =>
+    b.addEventListener("click", () => {
+      const d = Number(b.dataset.day);
+      if(hDaysSet.has(d)) hDaysSet.delete(d); else hDaysSet.add(d);
+      paintHabitDays();
+      validateHabit();
+    }));
+  document.getElementById("hCarry").addEventListener("click", () => {
+    hCarry = !hCarry;
+    document.getElementById("hCarry").setAttribute("aria-pressed", String(hCarry));
+  });
+  document.getElementById("hEss").addEventListener("click", () => {
+    hEss = !hEss;
+    document.getElementById("hEss").setAttribute("aria-pressed", String(hEss));
+  });
+  document.getElementById("hPause").addEventListener("click", pauseHabit);
+  document.getElementById("hDelete").addEventListener("click", onDeleteClick);
 
   // Navigazione tra schermate
   document.querySelectorAll("#tabbar .tab").forEach(t =>
